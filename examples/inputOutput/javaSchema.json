@@ -1,0 +1,39 @@
+{
+  "file": "Solution.java",
+  "language": "java",
+  "className": "Solution",
+  "folder": "examples/inputOutput/",
+  "tests": [
+    {
+      "type": "io",
+      "input": [
+        "3",
+        "1",
+        "2",
+        "3"
+      ],
+      "expectedOutput": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "type": "io",
+      "input": [
+        "2",
+        "2",
+        "5"
+      ],
+      "expectedOutput": [
+        "2",
+        "5"
+      ]
+    },
+    {
+      "type": "junit",
+      "unitTest": "@Test\n  public void adderWorksWithZero() {\n    Solution s = new Solution();\n    int actual = s.adder(0, 3);\n    assertEquals(3, actual);\n  }"
+    }
+  ],
+  "outfile": ""
+}
