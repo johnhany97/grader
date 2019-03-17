@@ -52,7 +52,7 @@ func main() {
 			// Obtain all unit tests
 			// Put it all together
 			junitFinal := fmt.Sprintf(string(junitShell), schema.ClassName, test.UnitTest)
-			fmt.Print(processor.ExecuteJUnitTests(schema.ClassName, schema.Folder, junitFinal))
+			result = processor.ExecuteJUnitTests(schema.ClassName, schema.Folder, junitFinal)
 		}
 		// Store output of test
 		switch schema.Outfile {
