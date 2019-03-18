@@ -10,6 +10,6 @@ public class SolutionTest {
   public void adderWorksWithZero() {
     Solution s = new Solution();
     int actual = s.adder(0, 3);
-    assertEquals("Given 0 and 3, Expected: 3", 3, actual);
+    assertEquals(3, actual);
   }
 }
