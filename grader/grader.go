@@ -20,22 +20,22 @@ type Schema struct {
 type Grader struct {
 	Schema    Schema               `json:"schema"`
 	Processor processors.Processor `json:"processor"`
+	MaxTasks  int                  `jsno:"maxTasks"`
 }
-
-const maxTasks = 100
 
 var wg sync.WaitGroup
 
-func NewGrader(s Schema, p processors.Processor) Grader {
+func NewGrader(s Schema, p processors.Processor, mt int) Grader {
 	return Grader{
 		Schema:    s,
 		Processor: p,
+		MaxTasks:  mt,
 	}
 }
 
 func (g Grader) Grade() []test.TestResult {
 	// make a channel with a capacity of 100.
-	jobChan := make(chan test.TestTask, maxTasks)
+	jobChan := make(chan test.TestTask, g.MaxTasks)
 
 	// results
 	testresults := []test.TestResult{}
