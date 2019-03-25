@@ -6,6 +6,7 @@
   "tests": [
     {
       "type": "io",
+      "description": "Testing normal boundaries",
       "input": [
         "3",
         "1",
