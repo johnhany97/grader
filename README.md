@@ -12,6 +12,7 @@ The following Docker containers are required for the app to support the most fam
 docker pull dexec/lang-java
 docker pull dexec/cpp
 docker pull dexec/python
+go install github.com/johnhany97/grader
 ```
 
 ## Example usage

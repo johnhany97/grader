@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-type Processor struct{}
+type SubmissionsProcessor struct{}
 
-func (p Processor) Execute(file string, folder string) (string, string) {
+func (p SubmissionsProcessor) Execute(file string, folder string) (string, string) {
 	var cmd *exec.Cmd
 	if folder != "" {
 		cmd = exec.Command("dexec", "-C", folder, file)
@@ -25,7 +25,7 @@ func (p Processor) Execute(file string, folder string) (string, string) {
 	return out.String(), e.String()
 }
 
-func (p Processor) ExecuteWithInput(file string, folder string, input string) (string, string) {
+func (p SubmissionsProcessor) ExecuteWithInput(file string, folder string, input string) (string, string) {
 	// compile command
 	var cmd *exec.Cmd
 	if folder != "" {
@@ -44,7 +44,7 @@ func (p Processor) ExecuteWithInput(file string, folder string, input string) (s
 	return out.String(), e.String()
 }
 
-func (p Processor) ExecuteJUnitTests(className string, folder string, junitTests string) (string, error) {
+func (p SubmissionsProcessor) ExecuteJUnitTests(className string, folder string, junitTests string) (string, error) {
 	fileName := className + "Test.java"
 	path := folder + fileName
 	// detect if file exists

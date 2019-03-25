@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/johnhany97/grader/processors"
 	"github.com/johnhany97/grader/test"
 )
 
@@ -18,18 +17,16 @@ type Schema struct {
 }
 
 type Grader struct {
-	Schema    Schema               `json:"schema"`
-	Processor processors.Processor `json:"processor"`
-	MaxTasks  int                  `jsno:"maxTasks"`
+	Schema   Schema `json:"schema"`
+	MaxTasks int    `jsno:"maxTasks"`
 }
 
 var wg sync.WaitGroup
 
-func NewGrader(s Schema, p processors.Processor, mt int) Grader {
+func NewGrader(s Schema, mt int) Grader {
 	return Grader{
-		Schema:    s,
-		Processor: p,
-		MaxTasks:  mt,
+		Schema:   s,
+		MaxTasks: mt,
 	}
 }
 

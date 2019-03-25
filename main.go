@@ -7,11 +7,13 @@ import (
 	"io/ioutil"
 	"log"
 
+	"github.com/johnhany97/grader/test"
+
 	"github.com/johnhany97/grader/grader"
-	"github.com/johnhany97/grader/processors"
 )
 
 func main() {
+	// Parse arguments to application
 	schemaFile := flag.String("schema", "", "Marking scheme to follow when grading the assignment (required)")
 	flag.Parse()
 
@@ -36,11 +38,22 @@ func main() {
 
 	const maxTasks = 10
 
-	grader := grader.NewGrader(schema, processors.Processor{}, maxTasks)
+	grader := grader.NewGrader(schema, maxTasks)
 
+	// Run Grader
 	testResults := grader.Grade()
 
-	bs, _ := json.Marshal(testResults)
-	fmt.Println(string(bs))
-	// fmt.Println(testResults)
+	// Process test results as requested in schema
+	processResults(testResults, schema.Outfile, schema.Folder)
+}
+
+func processResults(tr []test.TestResult, outfile string, folder string) {
+	bs, _ := json.Marshal(tr)
+	if outfile == "" {
+		fmt.Println(string(bs))
+	} else {
+		if err := ioutil.WriteFile(folder+outfile, bs, 0644); err != nil {
+			log.Fatal(err)
+		}
+	}
 }

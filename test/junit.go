@@ -16,7 +16,7 @@ type JUnitTestHandler struct {
 }
 
 func (jut JUnitTestHandler) RunTest() (TestResult, error) {
-	processor := processors.Processor{}
+	processor := processors.SubmissionsProcessor{}
 	// Obtain Junit file shell
 	junitShell, err := ioutil.ReadFile("assets/JUnit.java")
 	if err != nil {

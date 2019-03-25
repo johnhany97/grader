@@ -14,7 +14,7 @@ type OutputTestHandler struct {
 }
 
 func (opt OutputTestHandler) RunTest() (TestResult, error) {
-	processor := processors.Processor{}
+	processor := processors.SubmissionsProcessor{}
 	stdout, stderr := processor.Execute(opt.File, opt.Folder)
 	return opt.NewResult(stdout, stderr), nil
 }
