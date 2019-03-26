@@ -2,6 +2,7 @@ package processors
 
 import (
 	"bytes"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -60,29 +61,21 @@ func (p SubmissionsProcessor) ExecuteJUnitTests(className string, folder string,
 	if err != nil {
 		return "", err
 	}
-
-	copyJunit := exec.Command("cp", "assets/junit.jar", folder)
-	err = copyJunit.Run()
-	if err != nil {
-		return "", err
-	}
-	compileClass := exec.Command("javac", className+".java")
-	compileClass.Dir = folder
-	err = compileClass.Run()
-	if err != nil {
-		return "", err
-	}
-	compileTestClass := exec.Command("javac", "-cp", ".:junit.jar", fileName)
-	compileTestClass.Dir = folder
-	err = compileTestClass.Run()
-	if err != nil {
-		return "", err
-	}
-	runTestClass := exec.Command("java", "-cp", ".:junit.jar", "org.junit.runner.JUnitCore", className+"Test")
-	runTestClass.Dir = folder
+	// delete when done
+	defer func() {
+		var err = os.Remove(path)
+		if err != nil {
+			return
+		}
+	}()
+	// junitCmd := exec.Command("docker", "run", "-t", "--rm", "-v", "$(pwd -P)/Solution.java:/tmp/dexec/build/Solution.java", "-v", "$(pwd -P)/SolutionTest.java:/tmp/dexec/build/SolutionTest.java", "grader/junit", "Solution.java", "SolutionTest.java")
+	junitCmd := exec.Command("/bin/sh", "-c", "docker run -t --rm -v $(pwd -P)/Solution.java:/tmp/dexec/build/Solution.java -v $(pwd -P)/SolutionTest.java:/tmp/dexec/build/SolutionTest.java grader/junit Solution.java SolutionTest.java")
+	// junitCmd := exec.Command("/bin/sh", "-c", "sudo", "docker", "run", "-t", "--rm", "-v", "$(pwd -P)/Solution.java:/tmp/dexec/build/Solution.java", "-v", "$(pwd -P)/SolutionTest.java:/tmp/dexec/build/SolutionTest.java", "grader/junit", "Solution.java", "SolutionTest.java")
+	junitCmd.Dir = folder
 	var out bytes.Buffer
-	runTestClass.Stdout = &out
-	if err = runTestClass.Run(); err != nil {
+	junitCmd.Stdout = &out
+	if err = junitCmd.Run(); err != nil {
+		fmt.Println(err)
 		return "", err
 	}
 	return out.String(), nil

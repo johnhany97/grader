@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os/exec"
+	"strconv"
 
 	"github.com/johnhany97/grader/test"
 
@@ -13,6 +15,8 @@ import (
 )
 
 func main() {
+	// obtain su permissions
+	// becomeSu()
 	// Parse arguments to application
 	schemaFile := flag.String("schema", "", "Marking scheme to follow when grading the assignment (required)")
 	flag.Parse()
@@ -55,5 +59,24 @@ func processResults(tr []test.TestResult, outfile string, folder string) {
 		if err := ioutil.WriteFile(folder+outfile, bs, 0644); err != nil {
 			log.Fatal(err)
 		}
+	}
+}
+
+func becomeSu() {
+	cmd := exec.Command("id", "-u")
+	output, err := cmd.Output()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	i, err := strconv.Atoi(string(output[:len(output)-1]))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if i == 0 {
+		fmt.Println("Successfully obtained root permissions")
+	} else {
+		log.Fatal("This program must be run as root! (sudo)")
 	}
 }
