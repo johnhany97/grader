@@ -69,7 +69,7 @@ func (p SubmissionsProcessor) ExecuteJUnitTests(className string, folder string,
 		}
 	}()
 	// junitCmd := exec.Command("docker", "run", "-t", "--rm", "-v", "$(pwd -P)/Solution.java:/tmp/dexec/build/Solution.java", "-v", "$(pwd -P)/SolutionTest.java:/tmp/dexec/build/SolutionTest.java", "grader/junit", "Solution.java", "SolutionTest.java")
-	junitCmd := exec.Command("/bin/sh", "-c", "docker run -t --rm -v $(pwd -P)/Solution.java:/tmp/dexec/build/Solution.java -v $(pwd -P)/SolutionTest.java:/tmp/dexec/build/SolutionTest.java grader/junit Solution.java SolutionTest.java")
+	junitCmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("docker run -t --rm -v $(pwd -P)/%v.java:/tmp/dexec/build/%v.java -v $(pwd -P)/%v:/tmp/dexec/build/%v grader/junit %v.java %v", className, className, fileName, fileName, className, fileName))
 	// junitCmd := exec.Command("/bin/sh", "-c", "sudo", "docker", "run", "-t", "--rm", "-v", "$(pwd -P)/Solution.java:/tmp/dexec/build/Solution.java", "-v", "$(pwd -P)/SolutionTest.java:/tmp/dexec/build/SolutionTest.java", "grader/junit", "Solution.java", "SolutionTest.java")
 	junitCmd.Dir = folder
 	var out bytes.Buffer
