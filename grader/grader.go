@@ -80,8 +80,8 @@ func (g Grader) Grade() []test.TestResult {
 func worker(jobChan <-chan test.TestTask, testresults *[]test.TestResult) {
 	defer wg.Done()
 	for job := range jobChan {
-		fmt.Print("Enqueuing job: ")
-		fmt.Println(job)
+		// fmt.Print("Enqueuing job: ")
+		// fmt.Println(job)
 		wg.Add(1)
 		go func(job test.TestTask, testresults *[]test.TestResult) {
 			defer wg.Done()

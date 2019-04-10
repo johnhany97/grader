@@ -2,7 +2,6 @@ package test
 
 import (
 	"fmt"
-	"io/ioutil"
 	"strings"
 
 	"github.com/johnhany97/grader/processors"
@@ -18,10 +17,17 @@ type JUnitTestHandler struct {
 func (jut JUnitTestHandler) RunTest() (TestResult, error) {
 	processor := processors.SubmissionsProcessor{}
 	// Obtain Junit file shell
-	junitShell, err := ioutil.ReadFile("assets/JUnit.java")
-	if err != nil {
-		handleErr(err)
-	}
+	junitShell := ` import org.junit.Test;
+									import org.junit.runner.JUnitCore;
+									import org.junit.runner.Result;
+									import org.junit.runner.notification.Failure;
+
+									import static org.junit.Assert.*;
+
+									public class %vTest {
+										%v
+									}
+									`
 	// Obtain all unit tests
 	// Put it all together
 	junitFinal := fmt.Sprintf(string(junitShell), jut.ClassName, jut.Test.UnitTest)
