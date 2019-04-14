@@ -31,7 +31,8 @@ func (opt OutputTestHandler) NewResult(stdout string, stderr string) TestResult 
 	// Add Programmatically generated description of test
 	if tr.StdErr == "" {
 		exp := strings.Join(opt.Test.ExpectedOutput, "\n")
-		tr.Description = fmt.Sprintf("Expected:\n%v\nGot:\n%v\nTest passed: %v", exp, tr.StdOut, tr.StdOut == exp)
+		tr.Successful = tr.StdOut == exp
+		tr.Description = fmt.Sprintf("Expected:\n%v\nGot:\n%v\nTest passed: %v", exp, tr.StdOut, tr.Successful)
 	}
 
 	return tr

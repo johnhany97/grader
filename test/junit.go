@@ -47,6 +47,8 @@ func (jut JUnitTestHandler) NewResult(stdout string, stderr string) TestResult {
 	tr.StdOut = strings.TrimSpace(stdout)
 	tr.StdErr = strings.TrimSpace(stderr)
 
+	tr.Successful = strings.Contains(stdout, "OK (1 test)")
+
 	return tr
 }
 

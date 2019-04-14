@@ -28,9 +28,12 @@ func (iot InputOutputTestHandler) NewResult(stdout string, stderr string) TestRe
 	tr.StdOut = strings.TrimSpace(stdout)
 	tr.StdErr = strings.TrimSpace(stderr)
 
+	successful := tr.StdOut == strings.Join(iot.Test.ExpectedOutput, "\n")
+	tr.Successful = successful
+
 	// Add Programmatically generated description of test
 	if tr.StdErr == "" {
-		tr.Description = fmt.Sprintf("Expected:\n%v\nGot:\n%v\nTest passed: %v", strings.Join(iot.Test.ExpectedOutput, "\n"), tr.StdOut, tr.StdOut == strings.Join(iot.Test.ExpectedOutput, "\n"))
+		tr.Description = fmt.Sprintf("Expected:\n%v\nGot:\n%v\nTest passed: %v", strings.Join(iot.Test.ExpectedOutput, "\n"), tr.StdOut, successful)
 	}
 
 	return tr

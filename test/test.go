@@ -13,6 +13,7 @@ type TestResult struct {
 	Description string  `json:"description"`
 	StdOut      string  `json:"stdOut"`
 	StdErr      string  `json:"stdErr"`
+	Successful  bool    `json:"successful"`
 	Grade       float32 `json:"grade"`
 }
 
