@@ -1,7 +1,6 @@
 package grader
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/johnhany97/grader/test"
@@ -85,10 +84,10 @@ func worker(jobChan <-chan test.TestTask, testresults *[]test.TestResult) {
 		wg.Add(1)
 		go func(job test.TestTask, testresults *[]test.TestResult) {
 			defer wg.Done()
-			testResult, err := job.RunTest()
-			if err != nil {
-				fmt.Println(err)
-			}
+			testResult, _ := job.RunTest()
+			// if err != nil {
+			// 	fmt.Println(err)
+			// }
 			*testresults = append(*testresults, testResult)
 		}(job, testresults)
 	}

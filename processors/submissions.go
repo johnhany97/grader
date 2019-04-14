@@ -75,7 +75,6 @@ func (p SubmissionsProcessor) ExecuteJUnitTests(className string, folder string,
 	var out bytes.Buffer
 	junitCmd.Stdout = &out
 	if err = junitCmd.Run(); err != nil {
-		fmt.Println(err)
 		return "", err
 	}
 	return out.String(), nil
