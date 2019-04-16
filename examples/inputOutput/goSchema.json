@@ -1,0 +1,17 @@
+{
+  "tests": [
+    {
+      "input": [
+        "Testing"
+      ],
+      "expectedOutput": [
+        "Hello World"
+      ],
+      "type": "io"
+    }
+  ],
+  "folder": "examples/inputOutput/",
+  "language": "go",
+  "file": "Solution.go",
+  "className": "Solution"
+}

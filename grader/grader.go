@@ -64,6 +64,13 @@ func (g Grader) Grade() []test.TestResult {
 				Folder:    g.Schema.Folder,
 				ClassName: g.Schema.ClassName,
 			}
+		case "pyunit":
+			task = test.PyUnitTestHandler{
+				Test:      t,
+				File:      g.Schema.File,
+				Folder:    g.Schema.Folder,
+				ClassName: g.Schema.ClassName,
+			}
 		}
 		// enqueue task
 		jobChan <- task

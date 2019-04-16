@@ -68,13 +68,45 @@ func (p SubmissionsProcessor) ExecuteJUnitTests(className string, folder string,
 			return
 		}
 	}()
-	// junitCmd := exec.Command("docker", "run", "-t", "--rm", "-v", "$(pwd -P)/Solution.java:/tmp/dexec/build/Solution.java", "-v", "$(pwd -P)/SolutionTest.java:/tmp/dexec/build/SolutionTest.java", "grader/junit", "Solution.java", "SolutionTest.java")
 	junitCmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("docker run -t --rm -v $(pwd -P)/%v.java:/tmp/dexec/build/%v.java -v $(pwd -P)/%v:/tmp/dexec/build/%v grader/junit %v.java %v", className, className, fileName, fileName, className, fileName))
-	// junitCmd := exec.Command("/bin/sh", "-c", "sudo", "docker", "run", "-t", "--rm", "-v", "$(pwd -P)/Solution.java:/tmp/dexec/build/Solution.java", "-v", "$(pwd -P)/SolutionTest.java:/tmp/dexec/build/SolutionTest.java", "grader/junit", "Solution.java", "SolutionTest.java")
 	junitCmd.Dir = folder
 	var out bytes.Buffer
 	junitCmd.Stdout = &out
 	if err = junitCmd.Run(); err != nil {
+		return "", err
+	}
+	return out.String(), nil
+}
+
+func (p SubmissionsProcessor) ExecutePyUnitTests(file string, className string, folder string, pyUnitTests string) (string, error) {
+	fileName := "test_" + file
+	path := folder + fileName
+	// detect if file exists
+	_, err := os.Stat(path)
+	// delete file if exists
+	if os.IsExist(err) {
+		err = os.Remove(path)
+		if err != nil {
+			return "", err
+		}
+	}
+	err = ioutil.WriteFile(path, []byte(pyUnitTests), 0644)
+	if err != nil {
+		return "", err
+	}
+	// delete when done
+	defer func() {
+		var err = os.Remove(path)
+		if err != nil {
+			return
+		}
+	}()
+	var cmd *exec.Cmd
+	cmd = exec.Command("dexec", fileName, "-i", file)
+	cmd.Dir = folder
+	var out bytes.Buffer
+	cmd.Stderr = &out
+	if err = cmd.Run(); err != nil {
 		return "", err
 	}
 	return out.String(), nil

@@ -1,0 +1,12 @@
+{
+  "tests": [
+    {
+      "type": "pyunit",
+      "unitTest": "\tdef test_is_five_prime(self):\n\t\tself.assertTrue(is_prime(5))"
+    }
+  ],
+  "folder": "examples/python/",
+  "language": "python",
+  "file": "Solution.py",
+  "className": "Solution"
+}
