@@ -14,7 +14,7 @@ type TestResult struct {
 	StdOut      string  `json:"stdOut"`
 	StdErr      string  `json:"stdErr"`
 	Successful  bool    `json:"successful"`
-	Grade       float32 `json:"grade"`
+	Similarity  float64 `json:"similarity"`
 }
 
 type TestType int

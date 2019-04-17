@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/johnhany97/grader/processors"
+	"github.com/xrash/smetrics"
 )
 
 type InputOutputTestHandler struct {
@@ -30,6 +31,7 @@ func (iot InputOutputTestHandler) NewResult(stdout string, stderr string) TestRe
 
 	successful := tr.StdOut == strings.Join(iot.Test.ExpectedOutput, "\n")
 	tr.Successful = successful
+	tr.Similarity = smetrics.JaroWinkler(tr.StdOut, strings.Join(iot.Test.ExpectedOutput, "\n"), 0.7, 4)
 
 	// Add Programmatically generated description of test
 	if tr.StdErr == "" {
