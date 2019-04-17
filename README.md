@@ -29,7 +29,7 @@ Following is a list of supported languages with the required docker image.
 - `Go`: `dexec/lang-go`
 - `Groovy`: `dexec/lang-groovy`
 - `Haskell`: `dexec/lang-haskell`
-- `Java`:  `dexec/lang-java` AND `grader/junit`
+- `Java`:  `dexec/lang-java` AND `johnhany97/grader-junit`
 - `Lisp`:  `dexec/lang-lisp`
 - `Lua`: `dexec/lang-lua`
 - `JavaScript`: `dexec/lang-node`
