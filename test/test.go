@@ -18,15 +18,6 @@ type TestResult struct {
 	TimedOut    bool    `json:"timedOut"`
 }
 
-type TestType int
-
-const (
-	InputOutput TestType = iota
-	Output
-	FileInputOutput
-	JUnit
-)
-
 type TestTask interface {
 	RunTest() (TestResult, error)
 }

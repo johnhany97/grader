@@ -13,8 +13,71 @@ import (
 
 type SubmissionsProcessor struct{}
 
+type Language string
+
+type FileExtension string
+
+type LanguageProperties struct {
+	Name        Language      `json:"name"`
+	Extension   FileExtension `json:"extension"`
+	DockerImage string        `json:"dockerImage"`
+}
+
+var languages = map[string]LanguageProperties{
+	"c":      {Name: "C", Extension: "c", DockerImage: "dexec/lang-c"},
+	"clj":    {Name: "Clojure", Extension: "clj", DockerImage: "dexec/lang-clojure"},
+	"coffee": {Name: "CoffeeScript", Extension: "coffee", DockerImage: "dexec/lang-coffee"},
+	"cpp":    {Name: "C++", Extension: "cpp", DockerImage: "dexec/lang-cpp"},
+	"cs":     {Name: "C#", Extension: "cs", DockerImage: "dexec/lang-csharp"},
+	"d":      {Name: "D", Extension: "d", DockerImage: "dexec/lang-d"},
+	"erl":    {Name: "Erlang", Extension: "erl", DockerImage: "dexec/lang-erlang"},
+	"fs":     {Name: "F#", Extension: "fs", DockerImage: "dexec/lang-fsharp"},
+	"go":     {Name: "Go", Extension: "go", DockerImage: "dexec/lang-go"},
+	"groovy": {Name: "Groovy", Extension: "groovy", DockerImage: "dexec/lang-groovy"},
+	"hs":     {Name: "Haskell", Extension: "hs", DockerImage: "dexec/lang-haskell"},
+	"java":   {Name: "Java", Extension: "java", DockerImage: "dexec/lang-java"},
+	"lisp":   {Name: "Lisp", Extension: "lisp", DockerImage: "dexec/lang-lisp"},
+	"lua":    {Name: "Lua", Extension: "lua", DockerImage: "dexec/lang-lua"},
+	"js":     {Name: "JavaScript", Extension: "js", DockerImage: "dexec/lang-node"},
+	"nim":    {Name: "Nim", Extension: "nim", DockerImage: "dexec/lang-nim"},
+	"m":      {Name: "Objective C", Extension: "m", DockerImage: "dexec/lang-objc"},
+	"ml":     {Name: "OCaml", Extension: "ml", DockerImage: "dexec/lang-ocaml"},
+	"p6":     {Name: "Perl 6", Extension: "p6", DockerImage: "dexec/lang-perl6"},
+	"pl":     {Name: "Perl", Extension: "pl", DockerImage: "dexec/lang-perl"},
+	"php":    {Name: "PHP", Extension: "php", DockerImage: "dexec/lang-php"},
+	"py":     {Name: "Python", Extension: "py", DockerImage: "dexec/lang-python"},
+	"r":      {Name: "R", Extension: "r", DockerImage: "dexec/lang-r"},
+	"rky":    {Name: "Racket", Extension: "rkt", DockerImage: "dexec/lang-racket"},
+	"rb":     {Name: "Ruby", Extension: "rb", DockerImage: "dexec/lang-ruby"},
+	"rs":     {Name: "Rust", Extension: "rs", DockerImage: "dexec/lang-rust"},
+	"scala":  {Name: "Scala", Extension: "scala", DockerImage: "dexec/lang-scala"},
+	"sh":     {Name: "Bash", Extension: "sh", DockerImage: "dexec/lang-bash"},
+}
+
 const timePerTask = 10 * time.Second // 2 seconds
-const TimeoutErrorMessage = "timeout"
+const timeoutErrorMessage = "timeout"
+
+// docker run -it --rm -v $(pwd -P)/Solution.java:/tmp/dexec/build/Solution.java dexec/lang-java Solution.java
+
+// func detectLanguage(file string) (LanguageProperties, error) {
+// 	if v, ok := languages[path.Ext(file)[1:]]; ok {
+// 		return v, nil
+// 	}
+// 	// not found
+// 	return LanguageProperties{}, errors.New("language not yet supported")
+// }
+
+// func generateCmd(langProps LanguageProperties, files []string) (string, error) {
+// 	if len(files) < 1 {
+// 		return "", errors.New("at least 1 file should be provided")
+// 	}
+// 	// Found
+// 	paths := []string{}
+// 	for _, file := range files {
+// 		paths = append(paths, fmt.Sprintf("-v $(pwd -P)/%v:/tmp/dexec/build/%v", file, file))
+// 	}
+// 	return fmt.Sprintf("timeout --signal=SIGKILL %v docker run -it --rm %v %v %v", timePerTask, strings.Join(paths, " "), langProps.DockerImage, strings.Join(files, " ")), nil
+// }
 
 func timedExec(cmd *exec.Cmd) (bool, error) {
 	cmd.Start()
@@ -32,7 +95,7 @@ func timedExec(cmd *exec.Cmd) (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		return false, errors.New(TimeoutErrorMessage)
+		return false, errors.New(timeoutErrorMessage)
 	case err := <-done:
 		// Command completed before timeout. Print output and error if it exists.
 		if err != nil {

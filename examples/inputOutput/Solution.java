@@ -11,7 +11,6 @@ public class Solution {
     for (int i = 0; i < x; i++) {
       System.out.println(l.get(i));
     }
-    System.out.println(1);
   }
 
   public int adder(int x, int y) {
