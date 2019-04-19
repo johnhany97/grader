@@ -55,9 +55,11 @@ var languages = map[string]LanguageProperties{
 }
 
 const timePerTask = 10 * time.Second // 2 seconds
+const memoryLimit = "50M"
+const cpusLimit = 0.25
 const timeoutErrorMessage = "timeout"
 
-// docker run -it --rm -v $(pwd -P)/Solution.java:/tmp/dexec/build/Solution.java dexec/lang-java Solution.java
+// docker run -m 50M --cpus 0.25 -it --rm -v $(pwd -P)/Solution.java:/tmp/dexec/build/Solution.java dexec/lang-java Solution.java
 
 // func detectLanguage(file string) (LanguageProperties, error) {
 // 	if v, ok := languages[path.Ext(file)[1:]]; ok {
@@ -76,7 +78,7 @@ const timeoutErrorMessage = "timeout"
 // 	for _, file := range files {
 // 		paths = append(paths, fmt.Sprintf("-v $(pwd -P)/%v:/tmp/dexec/build/%v", file, file))
 // 	}
-// 	return fmt.Sprintf("timeout --signal=SIGKILL %v docker run -it --rm %v %v %v", timePerTask, strings.Join(paths, " "), langProps.DockerImage, strings.Join(files, " ")), nil
+// 	return fmt.Sprintf("timeout --signal=SIGKILL %v docker -m %v --cpus %v run -it --rm %v %v %v", timePerTask, memoryLimit, cpusLimit, strings.Join(paths, " "), langProps.DockerImage, strings.Join(files, " ")), nil
 // }
 
 func timedExec(cmd *exec.Cmd) (bool, error) {
