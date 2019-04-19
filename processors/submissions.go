@@ -28,7 +28,10 @@ func timedExec(cmd *exec.Cmd) (bool, error) {
 	select {
 	case <-timeout:
 		// Timeout happened first, kill the process and print a message.
-		cmd.Process.Kill()
+		err := cmd.Process.Kill()
+		if err != nil {
+			return false, err
+		}
 		return false, errors.New(TimeoutErrorMessage)
 	case err := <-done:
 		// Command completed before timeout. Print output and error if it exists.
