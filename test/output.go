@@ -15,7 +15,10 @@ type OutputTestHandler struct {
 
 func (opt OutputTestHandler) RunTest() (TestResult, error) {
 	processor := processors.SubmissionsProcessor{}
-	stdout, stderr := processor.Execute(opt.File, opt.Folder)
+	stdout, stderr, err := processor.Execute(opt.File, opt.Folder)
+	if err != nil {
+		return opt.handleErr(err)
+	}
 	return opt.NewResult(stdout, stderr), nil
 }
 
@@ -36,4 +39,16 @@ func (opt OutputTestHandler) NewResult(stdout string, stderr string) TestResult 
 	}
 
 	return tr
+}
+
+func (opt OutputTestHandler) handleErr(e error) (TestResult, error) {
+	if strings.Compare(e.Error(), "timeout") == 0 {
+		return TestResult{
+			Test:     opt.Test,
+			TimedOut: true,
+		}, nil
+	}
+	return TestResult{
+		Test: opt.Test,
+	}, e
 }

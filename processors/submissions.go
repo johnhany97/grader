@@ -2,16 +2,44 @@ package processors
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 )
 
 type SubmissionsProcessor struct{}
 
-func (p SubmissionsProcessor) Execute(file string, folder string) (string, string) {
+const timePerTask = 10 * time.Second // 2 seconds
+const TimeoutErrorMessage = "timeout"
+
+func timedExec(cmd *exec.Cmd) (bool, error) {
+	cmd.Start()
+
+	done := make(chan error)
+	go func() { done <- cmd.Wait() }()
+
+	// Start a timer
+	timeout := time.After(timePerTask)
+
+	select {
+	case <-timeout:
+		// Timeout happened first, kill the process and print a message.
+		cmd.Process.Kill()
+		return false, errors.New(TimeoutErrorMessage)
+	case err := <-done:
+		// Command completed before timeout. Print output and error if it exists.
+		if err != nil {
+			return false, err
+		}
+		return true, nil
+	}
+}
+
+func (p SubmissionsProcessor) Execute(file string, folder string) (string, string, error) {
 	var cmd *exec.Cmd
 	cmd = exec.Command("dexec", file)
 	cmd.Dir = folder
@@ -19,11 +47,15 @@ func (p SubmissionsProcessor) Execute(file string, folder string) (string, strin
 	var e bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = &e
-	cmd.Run()
-	return out.String(), e.String()
+	// cmd.Run()
+	ok, err := timedExec(cmd)
+	if !ok {
+		return "", "", err
+	}
+	return out.String(), e.String(), nil
 }
 
-func (p SubmissionsProcessor) ExecuteWithInput(file string, folder string, input string) (string, string) {
+func (p SubmissionsProcessor) ExecuteWithInput(file string, folder string, input string) (string, string, error) {
 	// compile command
 	var cmd *exec.Cmd
 	cmd = exec.Command("dexec", file)
@@ -35,8 +67,11 @@ func (p SubmissionsProcessor) ExecuteWithInput(file string, folder string, input
 	var e bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = &e
-	cmd.Run()
-	return out.String(), e.String()
+	ok, err := timedExec(cmd)
+	if !ok {
+		return "", "", err
+	}
+	return out.String(), e.String(), nil
 }
 
 func (p SubmissionsProcessor) ExecuteJUnitTests(className string, folder string, junitTests string) (string, error) {
@@ -48,11 +83,12 @@ func (p SubmissionsProcessor) ExecuteJUnitTests(className string, folder string,
 	}
 	// delete when done
 	defer deletePath(path)
-	junitCmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("docker run -t --rm -v $(pwd -P)/%v.java:/tmp/dexec/build/%v.java -v $(pwd -P)/%v:/tmp/dexec/build/%v johnhany97/grader-junit %v.java %v", className, className, fileName, fileName, className, fileName))
-	junitCmd.Dir = folder
+	cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("docker run -t --rm -v $(pwd -P)/%v.java:/tmp/dexec/build/%v.java -v $(pwd -P)/%v:/tmp/dexec/build/%v johnhany97/grader-junit %v.java %v", className, className, fileName, fileName, className, fileName))
+	cmd.Dir = folder
 	var out bytes.Buffer
-	junitCmd.Stdout = &out
-	if err = junitCmd.Run(); err != nil {
+	cmd.Stdout = &out
+	ok, err := timedExec(cmd)
+	if !ok {
 		return "", err
 	}
 	return out.String(), nil
@@ -72,18 +108,19 @@ func (p SubmissionsProcessor) ExecutePyUnitTests(file string, className string, 
 	cmd.Dir = folder
 	var out bytes.Buffer
 	cmd.Stderr = &out
-	if err = cmd.Run(); err != nil {
+	ok, err := timedExec(cmd)
+	if !ok {
 		return "", err
 	}
 	return out.String(), nil
 }
 
-func (p SubmissionsProcessor) ExecuteJavaStyle(file string, folder string) (string, string) {
+func (p SubmissionsProcessor) ExecuteJavaStyle(file string, folder string) (string, string, error) {
 	path := folder + "google_checks.xml"
 	var cmd *exec.Cmd
 	err := writeJavaStyleChecks(path)
 	if err != nil {
-		return "", "Error Checking Style. Please contact administrators."
+		return "", "", errors.New("Error Checking Style. Please contact administrators.")
 	}
 	// defer deletePath(path)
 	cmd = exec.Command("checkstyle", "-c", "google_checks.xml", file)
@@ -92,8 +129,11 @@ func (p SubmissionsProcessor) ExecuteJavaStyle(file string, folder string) (stri
 	var e bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = &e
-	cmd.Run()
-	return out.String(), e.String()
+	ok, err := timedExec(cmd)
+	if !ok {
+		return "", "", err
+	}
+	return out.String(), e.String(), nil
 }
 
 func writeShellFile(name string, path string, data string) error {

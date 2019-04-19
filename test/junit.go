@@ -16,24 +16,12 @@ type JUnitTestHandler struct {
 
 func (jut JUnitTestHandler) RunTest() (TestResult, error) {
 	processor := processors.SubmissionsProcessor{}
-	// Obtain Junit file shell
-	junitShell := ` import org.junit.Test;
-									import org.junit.runner.JUnitCore;
-									import org.junit.runner.Result;
-									import org.junit.runner.notification.Failure;
-
-									import static org.junit.Assert.*;
-
-									public class %vTest {
-										%v
-									}
-									`
 	// Obtain all unit tests
 	// Put it all together
 	junitFinal := fmt.Sprintf(string(junitShell), jut.ClassName, jut.Test.UnitTest)
 	stdout, err := processor.ExecuteJUnitTests(jut.ClassName, jut.Folder, junitFinal)
 	if err != nil {
-		handleErr(err)
+		return jut.handleErr(err)
 	}
 	return jut.NewResult(stdout, ""), nil
 }
@@ -52,6 +40,27 @@ func (jut JUnitTestHandler) NewResult(stdout string, stderr string) TestResult {
 	return tr
 }
 
-func handleErr(e error) (TestResult, error) {
-	return TestResult{}, e
+func (jut JUnitTestHandler) handleErr(e error) (TestResult, error) {
+	if strings.Compare(e.Error(), "timeout") == 0 {
+		return TestResult{
+			Test:     jut.Test,
+			TimedOut: true,
+		}, nil
+	}
+	return TestResult{
+		Test: jut.Test,
+	}, e
 }
+
+const junitShell = `import java.util.*;
+
+import org.junit.Test;
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
+import org.junit.runner.notification.Failure;
+
+import static org.junit.Assert.*;
+
+public class %vTest {
+	%v
+}`

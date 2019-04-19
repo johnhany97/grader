@@ -16,7 +16,10 @@ type InputOutputTestHandler struct {
 
 func (iot InputOutputTestHandler) RunTest() (TestResult, error) {
 	processor := processors.SubmissionsProcessor{}
-	stdout, stderr := processor.ExecuteWithInput(iot.File, iot.Folder, strings.Join(iot.Test.Input, "\n"))
+	stdout, stderr, err := processor.ExecuteWithInput(iot.File, iot.Folder, strings.Join(iot.Test.Input, "\n"))
+	if err != nil {
+		return iot.handleErr(err)
+	}
 	return iot.NewResult(stdout, stderr), nil
 }
 
@@ -39,4 +42,16 @@ func (iot InputOutputTestHandler) NewResult(stdout string, stderr string) TestRe
 	}
 
 	return tr
+}
+
+func (iot InputOutputTestHandler) handleErr(e error) (TestResult, error) {
+	if strings.Compare(e.Error(), "timeout") == 0 {
+		return TestResult{
+			Test:     iot.Test,
+			TimedOut: true,
+		}, nil
+	}
+	return TestResult{
+		Test: iot.Test,
+	}, e
 }
