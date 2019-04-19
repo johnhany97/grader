@@ -7,7 +7,7 @@ Usage of main.go:
 ```
 
 ## Installation
-First off, you'll need to [Install Go](https://golang.org/doc/install) and make sure enviornment variables are set up properly. Following that, you'll need to [Install Docker](https://docs.docker.com/v17.09/engine/installation/).
+First off, you'll need to [Install Go](https://golang.org/doc/install) and make sure enviornment variables are set up properly. Following that, you'll need to [Install Docker](https://docs.docker.com/v17.09/engine/installation/). To be able to run Java Style checking test tasks, you'll need to install [Checkstyle](http://checkstyle.sourceforge.net/index.html) as well.
 Running the following two commands install two Go-based projects that run the grading.
 ```
 go get github.com/docker-exec/dexec
