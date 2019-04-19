@@ -71,6 +71,12 @@ func (g Grader) Grade() []test.TestResult {
 				Folder:    g.Schema.Folder,
 				ClassName: g.Schema.ClassName,
 			}
+		case "javaStyle":
+			task = test.JavaStyleTestHandler{
+				Test:   t,
+				File:   g.Schema.File,
+				Folder: g.Schema.Folder,
+			}
 		}
 		// enqueue task
 		jobChan <- task

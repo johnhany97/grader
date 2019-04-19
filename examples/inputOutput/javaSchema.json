@@ -5,6 +5,9 @@
   "folder": "examples/inputOutput/",
   "tests": [
     {
+      "type": "javaStyle"
+    },
+    {
       "type": "io",
       "description": "Testing normal boundaries",
       "input": [
