@@ -7,8 +7,8 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
-	"time"
 )
 
 type SubmissionsProcessor struct{}
@@ -54,62 +54,25 @@ var languages = map[string]LanguageProperties{
 	"sh":     {Name: "Bash", Extension: "sh", DockerImage: "dexec/lang-bash"},
 }
 
-const timePerTask = 10 * time.Second // 2 seconds
-const memoryLimit = "50M"
-const cpusLimit = 0.25
+const timePerTask = 10 // time.Second
+const timeoutErrorExistStatusCode = 124
 const timeoutErrorMessage = "timeout"
 
-// docker run -m 50M --cpus 0.25 -it --rm -v $(pwd -P)/Solution.java:/tmp/dexec/build/Solution.java dexec/lang-java Solution.java
-
-// func detectLanguage(file string) (LanguageProperties, error) {
-// 	if v, ok := languages[path.Ext(file)[1:]]; ok {
-// 		return v, nil
-// 	}
-// 	// not found
-// 	return LanguageProperties{}, errors.New("language not yet supported")
-// }
-
-// func generateCmd(langProps LanguageProperties, files []string) (string, error) {
-// 	if len(files) < 1 {
-// 		return "", errors.New("at least 1 file should be provided")
-// 	}
-// 	// Found
-// 	paths := []string{}
-// 	for _, file := range files {
-// 		paths = append(paths, fmt.Sprintf("-v $(pwd -P)/%v:/tmp/dexec/build/%v", file, file))
-// 	}
-// 	return fmt.Sprintf("timeout --signal=SIGKILL %v docker -m %v --cpus %v run -it --rm %v %v %v", timePerTask, memoryLimit, cpusLimit, strings.Join(paths, " "), langProps.DockerImage, strings.Join(files, " ")), nil
-// }
-
 func timedExec(cmd *exec.Cmd) (bool, error) {
-	cmd.Start()
-
-	done := make(chan error)
-	go func() { done <- cmd.Wait() }()
-
-	// Start a timer
-	timeout := time.After(timePerTask)
-
-	select {
-	case <-timeout:
-		// Timeout happened first, kill the process and print a message.
-		err := cmd.Process.Kill()
-		if err != nil {
-			return false, err
+	if err := cmd.Run(); err != nil {
+		if exitError, ok := err.(*exec.ExitError); ok {
+			if exitError.ExitCode() == timeoutErrorExistStatusCode {
+				return false, errors.New(timeoutErrorMessage)
+			}
 		}
-		return false, errors.New(timeoutErrorMessage)
-	case err := <-done:
-		// Command completed before timeout. Print output and error if it exists.
-		if err != nil {
-			return false, err
-		}
-		return true, nil
+		return false, err
 	}
+	return true, nil
 }
 
 func (p SubmissionsProcessor) Execute(file string, folder string) (string, string, error) {
 	var cmd *exec.Cmd
-	cmd = exec.Command("dexec", file)
+	cmd = exec.Command("dexec", "-t", strconv.Itoa(timePerTask), file)
 	cmd.Dir = folder
 	var out bytes.Buffer
 	var e bytes.Buffer
@@ -118,7 +81,7 @@ func (p SubmissionsProcessor) Execute(file string, folder string) (string, strin
 	// cmd.Run()
 	ok, err := timedExec(cmd)
 	if !ok {
-		return "", "", err
+		return out.String(), e.String(), err
 	}
 	return out.String(), e.String(), nil
 }
@@ -126,7 +89,7 @@ func (p SubmissionsProcessor) Execute(file string, folder string) (string, strin
 func (p SubmissionsProcessor) ExecuteWithInput(file string, folder string, input string) (string, string, error) {
 	// compile command
 	var cmd *exec.Cmd
-	cmd = exec.Command("dexec", file)
+	cmd = exec.Command("dexec", "-t", strconv.Itoa(timePerTask), file)
 	cmd.Dir = folder
 	// provide stdin
 	cmd.Stdin = strings.NewReader(input)
@@ -137,7 +100,7 @@ func (p SubmissionsProcessor) ExecuteWithInput(file string, folder string, input
 	cmd.Stderr = &e
 	ok, err := timedExec(cmd)
 	if !ok {
-		return "", "", err
+		return out.String(), e.String(), err
 	}
 	return out.String(), e.String(), nil
 }
@@ -157,7 +120,7 @@ func (p SubmissionsProcessor) ExecuteJUnitTests(className string, folder string,
 	cmd.Stdout = &out
 	ok, err := timedExec(cmd)
 	if !ok {
-		return "", err
+		return out.String(), err
 	}
 	return out.String(), nil
 }
@@ -172,13 +135,13 @@ func (p SubmissionsProcessor) ExecutePyUnitTests(file string, className string, 
 	// delete when done
 	defer deletePath(path)
 	var cmd *exec.Cmd
-	cmd = exec.Command("dexec", fileName, "-i", file)
+	cmd = exec.Command("dexec", "-t", strconv.Itoa(timePerTask), fileName, "-i", file)
 	cmd.Dir = folder
 	var out bytes.Buffer
 	cmd.Stderr = &out
 	ok, err := timedExec(cmd)
 	if !ok {
-		return "", err
+		return out.String(), err
 	}
 	return out.String(), nil
 }
@@ -199,7 +162,7 @@ func (p SubmissionsProcessor) ExecuteJavaStyle(file string, folder string) (stri
 	cmd.Stderr = &e
 	ok, err := timedExec(cmd)
 	if !ok {
-		return "", "", err
+		return out.String(), e.String(), err
 	}
 	return out.String(), e.String(), nil
 }
