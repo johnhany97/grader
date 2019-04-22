@@ -18,7 +18,7 @@ func (iot InputOutputTestHandler) RunTest() (TestResult, error) {
 	processor := processors.SubmissionsProcessor{}
 	stdout, stderr, err := processor.ExecuteWithInput(iot.File, iot.Folder, strings.Join(iot.Test.Input, "\n"))
 	if err != nil {
-		return iot.handleErr(err)
+		return iot.handleErr(err, stdout, stderr)
 	}
 	return iot.NewResult(stdout, stderr), nil
 }
@@ -44,14 +44,18 @@ func (iot InputOutputTestHandler) NewResult(stdout string, stderr string) TestRe
 	return tr
 }
 
-func (iot InputOutputTestHandler) handleErr(e error) (TestResult, error) {
+func (iot InputOutputTestHandler) handleErr(e error, stdout string, stderr string) (TestResult, error) {
 	if strings.Compare(e.Error(), "timeout") == 0 {
 		return TestResult{
 			Test:     iot.Test,
 			TimedOut: true,
+			StdOut:   strings.TrimSpace(stdout),
+			StdErr:   strings.TrimSpace(stderr),
 		}, nil
 	}
 	return TestResult{
-		Test: iot.Test,
+		Test:   iot.Test,
+		StdOut: strings.TrimSpace(stdout),
+		StdErr: strings.TrimSpace(stderr),
 	}, e
 }

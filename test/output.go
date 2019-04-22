@@ -17,7 +17,7 @@ func (opt OutputTestHandler) RunTest() (TestResult, error) {
 	processor := processors.SubmissionsProcessor{}
 	stdout, stderr, err := processor.Execute(opt.File, opt.Folder)
 	if err != nil {
-		return opt.handleErr(err)
+		return opt.handleErr(err, stdout, stderr)
 	}
 	return opt.NewResult(stdout, stderr), nil
 }
@@ -41,14 +41,18 @@ func (opt OutputTestHandler) NewResult(stdout string, stderr string) TestResult 
 	return tr
 }
 
-func (opt OutputTestHandler) handleErr(e error) (TestResult, error) {
+func (opt OutputTestHandler) handleErr(e error, stdout string, stderr string) (TestResult, error) {
 	if strings.Compare(e.Error(), "timeout") == 0 {
 		return TestResult{
 			Test:     opt.Test,
 			TimedOut: true,
+			StdOut:   strings.TrimSpace(stdout),
+			StdErr:   strings.TrimSpace(stderr),
 		}, nil
 	}
 	return TestResult{
-		Test: opt.Test,
+		Test:   opt.Test,
+		StdOut: strings.TrimSpace(stdout),
+		StdErr: strings.TrimSpace(stderr),
 	}, e
 }

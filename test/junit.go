@@ -21,7 +21,7 @@ func (jut JUnitTestHandler) RunTest() (TestResult, error) {
 	junitFinal := fmt.Sprintf(string(junitShell), jut.ClassName, jut.Test.UnitTest)
 	stdout, err := processor.ExecuteJUnitTests(jut.ClassName, jut.Folder, junitFinal)
 	if err != nil {
-		return jut.handleErr(err)
+		return jut.handleErr(err, stdout)
 	}
 	return jut.NewResult(stdout, ""), nil
 }
@@ -40,15 +40,17 @@ func (jut JUnitTestHandler) NewResult(stdout string, stderr string) TestResult {
 	return tr
 }
 
-func (jut JUnitTestHandler) handleErr(e error) (TestResult, error) {
+func (jut JUnitTestHandler) handleErr(e error, stdout string) (TestResult, error) {
 	if strings.Compare(e.Error(), "timeout") == 0 {
 		return TestResult{
 			Test:     jut.Test,
 			TimedOut: true,
+			StdOut:   strings.TrimSpace(stdout),
 		}, nil
 	}
 	return TestResult{
-		Test: jut.Test,
+		Test:   jut.Test,
+		StdOut: strings.TrimSpace(stdout),
 	}, e
 }
 
