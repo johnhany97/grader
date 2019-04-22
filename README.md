@@ -17,7 +17,7 @@ go get -u github.com/johnhany97/grader
 ```
 Note: We use a modified version of `dexec` which supports timing out executions. Changes should've been merged, however, ensure you have version `1.0.9-SNAPSHOT` of `dexec` installed before continuing.
 
-That customized version could also be found at [https://github.com/johnhany97/dexec.git](https://github.com/johnhany97/dexec.git).
+That customized version could also be found at [https://github.com/johnhany97/dexec](https://github.com/johnhany97/dexec)
 
 ## Supported languages
 
