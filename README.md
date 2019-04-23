@@ -74,19 +74,29 @@ grader -schema="examples/inputOutput/goSchema.json"
 
 ### Test Tasks
 Currently supported are 4 different types of test tasks. They should confirm to the following format:
-```JSON
+```
 {
   "type": "TYPE_OF_TEST", // io - junit - pyunit - output
+ 
   // io --- start
+  
   "input": [ " " ], // Array of strings where each string is a line in the input. They are joined by \n
   "expectedOutput": [ " " ], // Array of strings where each string is a line in the expected output. They are joined by \n
+  
   // io --- end
+ 
   // junit/pyunit --- start
+  
   "unitTest": "", // The test to be injected in the shell file, after being escaped
+  
   // junit/pyunit --- end
+  
   // output --- start
+  
   "expectedOutput": [ " " ], // Array of strings where each string is a line in the expected output. They are joined by \n
+  
   // output --- end
+  
 }
 ```
 
