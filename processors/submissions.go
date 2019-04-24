@@ -11,18 +11,29 @@ import (
 	"strings"
 )
 
+// SubmissionsProcessor struct which attached to it
+// are the methods used by the test tasks to execute
+// compilation/running tasks that interface with Docker
 type SubmissionsProcessor struct{}
 
+// Language type
 type Language string
 
+// FileExtension type
 type FileExtension string
 
+// LanguageProperties is a struct containing features of a language
+// which is used currently by the inner map of the languages to
+// reflect the support for the languages currently hy the SubmissionsProcessor
 type LanguageProperties struct {
 	Name        Language      `json:"name"`
 	Extension   FileExtension `json:"extension"`
 	DockerImage string        `json:"dockerImage"`
 }
 
+// Inner map of the languages supported by dexec
+// and the respective file extensions, language names
+// and docker images
 var languages = map[string]LanguageProperties{
 	"c":      {Name: "C", Extension: "c", DockerImage: "dexec/lang-c"},
 	"clj":    {Name: "Clojure", Extension: "clj", DockerImage: "dexec/lang-clojure"},
@@ -54,10 +65,16 @@ var languages = map[string]LanguageProperties{
 	"sh":     {Name: "Bash", Extension: "sh", DockerImage: "dexec/lang-bash"},
 }
 
+// Constants relating to timing out test tasks
+// and the errors that may be produced. Should be set
+// according to the system's configurations.
 const timePerTask = 10 // time.Second
 const timeoutErrorExistStatusCode = 124
 const timeoutErrorMessage = "timeout"
 
+// timedExec executes a given command normally but
+// detects if the exit signal was that of a timeout
+// and reports so to by returning a unique kind of error
 func timedExec(cmd *exec.Cmd) (bool, error) {
 	if err := cmd.Run(); err != nil {
 		if exitError, ok := err.(*exec.ExitError); ok {
@@ -70,15 +87,21 @@ func timedExec(cmd *exec.Cmd) (bool, error) {
 	return true, nil
 }
 
+// Execute is a method that given a file and the folder within which it exists,
+// runs the file and just sends back any stdout and any errors produced.
 func (p SubmissionsProcessor) Execute(file string, folder string) (string, string, error) {
 	var cmd *exec.Cmd
-	cmd = exec.Command("dexec", "-t", strconv.Itoa(timePerTask), file)
-	cmd.Dir = folder
+
+	// standard output and error buffers
 	var out bytes.Buffer
 	var e bytes.Buffer
+
+	cmd = exec.Command("dexec", "-t", strconv.Itoa(timePerTask), file)
+
+	cmd.Dir = folder
 	cmd.Stdout = &out
 	cmd.Stderr = &e
-	// cmd.Run()
+
 	ok, err := timedExec(cmd)
 	if !ok {
 		return out.String(), e.String(), err
@@ -86,18 +109,23 @@ func (p SubmissionsProcessor) Execute(file string, folder string) (string, strin
 	return out.String(), e.String(), nil
 }
 
+// ExecuteWithInput is a method given a file, a folder and some input runs
+// that file and provides it with the input and returns any stdout or errors produced
 func (p SubmissionsProcessor) ExecuteWithInput(file string, folder string, input string) (string, string, error) {
-	// compile command
 	var cmd *exec.Cmd
-	cmd = exec.Command("dexec", "-t", strconv.Itoa(timePerTask), file)
-	cmd.Dir = folder
-	// provide stdin
-	cmd.Stdin = strings.NewReader(input)
-	// take back stdout
+
+	// standard output and error buffers
 	var out bytes.Buffer
 	var e bytes.Buffer
+
+	cmd = exec.Command("dexec", "-t", strconv.Itoa(timePerTask), file)
+
+	cmd.Dir = folder
+
+	cmd.Stdin = strings.NewReader(input)
 	cmd.Stdout = &out
 	cmd.Stderr = &e
+
 	ok, err := timedExec(cmd)
 	if !ok {
 		return out.String(), e.String(), err
@@ -105,6 +133,9 @@ func (p SubmissionsProcessor) ExecuteWithInput(file string, folder string, input
 	return out.String(), e.String(), nil
 }
 
+// ExecuteJUnitTests is a method used to execute JUnit Tests against a given file.
+// It starts by writing the JUnit Test file then running a specially created docker image
+// with the required files and returns back any output or errors produced.
 func (p SubmissionsProcessor) ExecuteJUnitTests(className string, folder string, junitTests string) (string, error) {
 	fileName := className + "Test.java"
 	path := folder + fileName
@@ -112,12 +143,17 @@ func (p SubmissionsProcessor) ExecuteJUnitTests(className string, folder string,
 	if err != nil {
 		return "", err
 	}
-	// delete when done
 	defer deletePath(path)
-	cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("docker run -t --rm -v $(pwd -P)/%v.java:/tmp/dexec/build/%v.java -v $(pwd -P)/%v:/tmp/dexec/build/%v johnhany97/grader-junit %v.java %v", className, className, fileName, fileName, className, fileName))
-	cmd.Dir = folder
+
+	// standard output buffer
 	var out bytes.Buffer
+
+	cmd := exec.Command("/bin/sh", "-c", fmt.Sprintf("docker run -t --rm -v $(pwd -P)/%v.java:/tmp/dexec/build/%v.java -v $(pwd -P)/%v:/tmp/dexec/build/%v johnhany97/grader-junit %v.java %v", className, className, fileName, fileName, className, fileName))
+
+	cmd.Dir = folder
+
 	cmd.Stdout = &out
+
 	ok, err := timedExec(cmd)
 	if !ok {
 		return out.String(), err
@@ -125,6 +161,9 @@ func (p SubmissionsProcessor) ExecuteJUnitTests(className string, folder string,
 	return out.String(), nil
 }
 
+// ExecutePyUnitTests is a method used to execute Python unit tests against a given file.
+// It starts by writing the Python unit test file then running the python docker image
+// with the required files and returns back any output or errors produced.
 func (p SubmissionsProcessor) ExecutePyUnitTests(file string, className string, folder string, pyUnitTests string) (string, error) {
 	fileName := "test_" + file
 	path := folder + fileName
@@ -132,13 +171,19 @@ func (p SubmissionsProcessor) ExecutePyUnitTests(file string, className string, 
 	if err != nil {
 		return "", err
 	}
-	// delete when done
 	defer deletePath(path)
+
 	var cmd *exec.Cmd
-	cmd = exec.Command("dexec", "-t", strconv.Itoa(timePerTask), fileName, "-i", file)
-	cmd.Dir = folder
+
+	// standard output buffer
 	var out bytes.Buffer
-	cmd.Stderr = &out
+
+	cmd = exec.Command("dexec", "-t", strconv.Itoa(timePerTask), fileName, "-i", file)
+
+	cmd.Dir = folder
+
+	cmd.Stderr = &out // BUG: For some reason python unit tests output to stderr
+
 	ok, err := timedExec(cmd)
 	if !ok {
 		return out.String(), err
@@ -146,20 +191,30 @@ func (p SubmissionsProcessor) ExecutePyUnitTests(file string, className string, 
 	return out.String(), nil
 }
 
+// ExecuteJavaStyle is a method used to run style checks using the Google CheckStyle XML
+// against a given Java Class.
 func (p SubmissionsProcessor) ExecuteJavaStyle(file string, folder string) (string, string, error) {
 	path := folder + "google_checks.xml"
-	var cmd *exec.Cmd
+
 	err := writeJavaStyleChecks(path)
 	if err != nil {
-		return "", "", errors.New("Error Checking Style. Please contact administrators.")
+		return "", "", errors.New("error checking style. please contact administrators")
 	}
-	// defer deletePath(path)
-	cmd = exec.Command("checkstyle", "-c", "google_checks.xml", file)
-	cmd.Dir = folder
+	defer deletePath(path)
+
+	var cmd *exec.Cmd
+
+	// standard output and error buffers
 	var out bytes.Buffer
 	var e bytes.Buffer
+
+	cmd = exec.Command("checkstyle", "-c", "google_checks.xml", file)
+
+	cmd.Dir = folder
+
 	cmd.Stdout = &out
 	cmd.Stderr = &e
+
 	ok, err := timedExec(cmd)
 	if !ok {
 		return out.String(), e.String(), err
@@ -167,6 +222,9 @@ func (p SubmissionsProcessor) ExecuteJavaStyle(file string, folder string) (stri
 	return out.String(), e.String(), nil
 }
 
+// Method that given a name for the file, a path to where it'll exist
+// and the data to write within it creates that file and returns
+// any errors found, if any
 func writeShellFile(name string, path string, data string) error {
 	// detect if file exists
 	_, err := os.Stat(path)
@@ -184,6 +242,7 @@ func writeShellFile(name string, path string, data string) error {
 	return nil
 }
 
+// deletePath is used to delete a given path
 func deletePath(path string) {
 	var err = os.Remove(path)
 	if err != nil {
@@ -191,6 +250,8 @@ func deletePath(path string) {
 	}
 }
 
+// writeJavaStyleChecks is used to write the google_checks.xml
+// used by checkstyle which is relevant to the javaStyle test task
 func writeJavaStyleChecks(path string) error {
 	// detect if file exists
 	_, err := os.Stat(path)
