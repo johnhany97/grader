@@ -6,6 +6,8 @@ import (
 	"github.com/johnhany97/grader/processors"
 )
 
+// JavaStyleTestHandler is a struct containing all the properties
+// needed to be able to execute a test task that does java style checking
 type JavaStyleTestHandler struct {
 	Test   Test
 	File   string

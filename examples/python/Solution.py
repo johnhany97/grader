@@ -1,10 +1,10 @@
 
-def is_prime(number):
+def is_odd(number):
     """Return True if *number* is prime."""
     # for element in range(number):
     #     if number % element == 0:
     #         return False
-    return True
+    return number % 2
     # return True
 
 

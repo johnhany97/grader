@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/johnhany97/grader/processors"
+	"github.com/xrash/smetrics"
 )
 
 type OutputTestHandler struct {
@@ -30,6 +31,7 @@ func (opt OutputTestHandler) NewResult(stdout string, stderr string) TestResult 
 	// Add Trimmed outputs
 	tr.StdOut = strings.TrimSpace(stdout)
 	tr.StdErr = strings.TrimSpace(stderr)
+	tr.Similarity = smetrics.JaroWinkler(tr.StdOut, strings.Join(opt.Test.ExpectedOutput, "\n"), 0.7, 4)
 
 	// Add Programmatically generated description of test
 	if tr.StdErr == "" {

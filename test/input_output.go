@@ -8,12 +8,16 @@ import (
 	"github.com/xrash/smetrics"
 )
 
+// InputOutputTestHandler is a struct containing all the properties
+// needed to be able to execute a test task with input and expected output
+// as the parameters.
 type InputOutputTestHandler struct {
-	Test   Test
-	File   string
-	Folder string
+	Test   Test   // The Test itself as extracted from the Schema
+	File   string // Name of the file containing the code being assessed
+	Folder string // Folder within which this file exists
 }
 
+// RunTest is a method used to run a test task of type Input Output
 func (iot InputOutputTestHandler) RunTest() (TestResult, error) {
 	processor := processors.SubmissionsProcessor{}
 	stdout, stderr, err := processor.ExecuteWithInput(iot.File, iot.Folder, strings.Join(iot.Test.Input, "\n"))
@@ -23,6 +27,8 @@ func (iot InputOutputTestHandler) RunTest() (TestResult, error) {
 	return iot.NewResult(stdout, stderr), nil
 }
 
+// NewResult returns back the result of processing the output of
+// executing the test task
 func (iot InputOutputTestHandler) NewResult(stdout string, stderr string) TestResult {
 	tr := TestResult{
 		Test: iot.Test,
@@ -44,6 +50,9 @@ func (iot InputOutputTestHandler) NewResult(stdout string, stderr string) TestRe
 	return tr
 }
 
+// handleErr handles potnetial errors produced from the execution and
+// customizes the test task output to reflect is the error was due to
+// a certain specific cause (for example, a timeout error)
 func (iot InputOutputTestHandler) handleErr(e error) (TestResult, error) {
 	if strings.Compare(e.Error(), "timeout") == 0 {
 		return TestResult{

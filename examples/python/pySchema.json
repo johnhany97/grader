@@ -2,7 +2,7 @@
   "tests": [
     {
       "type": "pyunit",
-      "unitTest": "\tdef test_is_five_prime(self):\n\t\tself.assertTrue(is_prime(5))"
+      "unitTest": "\tdef test_is_odd_on_odd(self):\n\t\tself.assertTrue(is_odd(5))"
     }
   ],
   "folder": "examples/python/",
