@@ -7,13 +7,17 @@ import (
 	"github.com/johnhany97/grader/processors"
 )
 
+// JUnitTestHandler is a struct containing all the properties
+// needed to be able to execute a test task given a java unit
+// test (junit) function and the file being tested as the parameters.
 type JUnitTestHandler struct {
-	Test      Test
-	File      string
-	Folder    string
-	ClassName string
+	Test      Test   // The Test itself as extracted from the Schema
+	File      string // Name of the file containing the code being assessed
+	Folder    string // Folder within which this file exists
+	ClassName string // Name of the class
 }
 
+// RunTest is a method used to run a test task
 func (jut JUnitTestHandler) RunTest() (TestResult, error) {
 	processor := processors.SubmissionsProcessor{}
 	// Obtain all unit tests
@@ -26,6 +30,8 @@ func (jut JUnitTestHandler) RunTest() (TestResult, error) {
 	return jut.NewResult(stdout, ""), nil
 }
 
+// NewResult returns back the result of processing the output of
+// executing the test task
 func (jut JUnitTestHandler) NewResult(stdout string, stderr string) TestResult {
 	tr := TestResult{
 		Test: jut.Test,
@@ -40,6 +46,9 @@ func (jut JUnitTestHandler) NewResult(stdout string, stderr string) TestResult {
 	return tr
 }
 
+// handleErr handles potnetial errors produced from the execution and
+// customizes the test task output to reflect is the error was due to
+// a certain specific cause (for example, a timeout error)
 func (jut JUnitTestHandler) handleErr(e error, stdout string) (TestResult, error) {
 	if strings.Compare(e.Error(), "timeout") == 0 {
 		return TestResult{

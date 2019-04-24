@@ -9,12 +9,12 @@ import (
 
 // PyUnitTestHandler is a struct containing all the properties
 // needed to be able to execute a test task given a python unit
-// test function and te file being tested as the parameters.
+// test function and the file being tested as the parameters.
 type PyUnitTestHandler struct {
-	Test      Test
-	File      string
-	Folder    string
-	ClassName string
+	Test      Test   // The Test itself as extracted from the Schema
+	File      string // Name of the file containing the code being assessed
+	Folder    string // Folder within which this file exists
+	ClassName string // Name of the class
 }
 
 // RunTest is a method used to run a test task
@@ -44,6 +44,9 @@ func (put PyUnitTestHandler) NewResult(stdout string, stderr string) TestResult 
 	return tr
 }
 
+// handleErr handles potnetial errors produced from the execution and
+// customizes the test task output to reflect is the error was due to
+// a certain specific cause (for example, a timeout error)
 func (put PyUnitTestHandler) handleErr(e error, stdout string) (TestResult, error) {
 	if strings.Compare(e.Error(), "timeout") == 0 {
 		return TestResult{
