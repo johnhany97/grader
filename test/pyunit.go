@@ -7,6 +7,9 @@ import (
 	"github.com/johnhany97/grader/processors"
 )
 
+// PyUnitTestHandler is a struct containing all the properties
+// needed to be able to execute a test task given a python unit
+// test function and te file being tested as the parameters.
 type PyUnitTestHandler struct {
 	Test      Test
 	File      string
@@ -14,6 +17,7 @@ type PyUnitTestHandler struct {
 	ClassName string
 }
 
+// RunTest is a method used to run a test task
 func (put PyUnitTestHandler) RunTest() (TestResult, error) {
 	processor := processors.SubmissionsProcessor{}
 	// Obtain all unit tests
@@ -25,11 +29,12 @@ func (put PyUnitTestHandler) RunTest() (TestResult, error) {
 	return put.NewResult(stdout, ""), nil
 }
 
+// NewResult returns back the result of processing the output of
+// executing the test task
 func (put PyUnitTestHandler) NewResult(stdout string, stderr string) TestResult {
 	tr := TestResult{
 		Test: put.Test,
 	}
-
 	// Add Trimmed outputs
 	tr.StdOut = strings.TrimSpace(stdout)
 	tr.StdErr = strings.TrimSpace(stderr)

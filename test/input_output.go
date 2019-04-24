@@ -17,7 +17,7 @@ type InputOutputTestHandler struct {
 	Folder string // Folder within which this file exists
 }
 
-// RunTest is a method used to run a test task of type Input Output
+// RunTest is a method used to run a test task
 func (iot InputOutputTestHandler) RunTest() (TestResult, error) {
 	processor := processors.SubmissionsProcessor{}
 	stdout, stderr, err := processor.ExecuteWithInput(iot.File, iot.Folder, strings.Join(iot.Test.Input, "\n"))
