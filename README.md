@@ -6,10 +6,14 @@ Usage of main.go:
         Marking scheme to follow when grading the assignment (required)
 ```
 
-## Testing
+## Testing & Benchmarking
 To run the test suite, simply execute the following command:
 ```
 go test -v ./...
+```
+To run the benchmarks, simply execute the following command:
+```
+go test -v -run="none" -bench=. -benchmem ./... -benchtime="5s"
 ```
 
 ## Installation

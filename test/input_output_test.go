@@ -1,6 +1,7 @@
 package test
 
 import (
+	"errors"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -99,6 +100,31 @@ func TestRunTestInputOutputTestHandler(t *testing.T) {
 	}
 }
 
+func BenchmarkRunTestInputOutputTestHandler(b *testing.B) {
+	iot := InputOutputTestHandler{
+		Test: Test{
+			Type: "io",
+			Input: []string{
+				"2",
+				"10",
+				"2",
+			},
+			ExpectedOutput: []string{
+				"11",
+				"3",
+			},
+		},
+		File:   "Solution.java",
+		Folder: "testData/printer/",
+	}
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		iot.RunTest()
+	}
+}
+
 func TestNewResultInputOutputTestHandler(t *testing.T) {
 	test := Test{
 		Type: "io",
@@ -160,5 +186,97 @@ func TestNewResultInputOutputTestHandler(t *testing.T) {
 		} else {
 			t.Logf("Successfully obtained the expected result")
 		}
+	}
+}
+
+func BenchmarkNewResultInputOutputTestHandler(b *testing.B) {
+	test := Test{
+		Type: "io",
+		Input: []string{
+			"2",
+			"10",
+			"2",
+		},
+		ExpectedOutput: []string{
+			"11",
+			"3",
+		},
+	}
+	stdout := strings.Join(test.ExpectedOutput, "\n")
+	stderr := ""
+	iot := InputOutputTestHandler{
+		Test:   test,
+		File:   "Solution.java",
+		Folder: "testData/printer/",
+	}
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		iot.NewResult(stdout, stderr)
+	}
+}
+
+func TestHandleErrInputOutputTestHandler(t *testing.T) {
+	test := Test{
+		Type: "io",
+		Input: []string{
+			"2",
+			"10",
+			"2",
+		},
+		ExpectedOutput: []string{
+			"11",
+			"3",
+		},
+	}
+	stdout := strings.Join(test.ExpectedOutput, "\n")
+	stderr := ""
+	iot := InputOutputTestHandler{
+		Test:   test,
+		File:   "Solution.java",
+		Folder: "testData/printer/",
+	}
+	err := errors.New("timeout")
+	err2 := errors.New("something else")
+
+	result1, _ := iot.handleErr(err, stdout, stderr)
+	result2, _ := iot.handleErr(err2, stdout, stderr)
+
+	correct1 := result1.StdOut == stdout && result1.StdErr == stderr && result1.TimedOut && !result1.Successful
+	if !correct1 {
+		t.Fatalf("Expected\n- StdOut: %s\n- StdErr: %s\n- Timeout: %v\n-------\nGot\n- StdOut: %s\n- StdErr: %s\n- Timeout: %v\n", stdout, stderr, true, result1.StdOut, result1.StdErr, result1.TimedOut)
+	}
+	correct2 := result2.StdOut == stdout && result2.StdErr == stderr && !result2.TimedOut && !result2.Successful
+	if !correct2 {
+		t.Fatalf("Expected\n- StdOut: %s\n- StdErr: %s\n- Timeout: %v\n-------\nGot\n- StdOut: %s\n- StdErr: %s\n- Timeout: %v\n", stdout, stderr, false, result2.StdOut, result2.StdErr, result2.TimedOut)
+	}
+}
+
+func BenchmarkHandleErrInputOutputTestHandler(b *testing.B) {
+	test := Test{
+		Type: "io",
+		Input: []string{
+			"2",
+			"10",
+			"2",
+		},
+		ExpectedOutput: []string{
+			"11",
+			"3",
+		},
+	}
+	stdout := strings.Join(test.ExpectedOutput, "\n")
+	stderr := ""
+	iot := InputOutputTestHandler{
+		Test:   test,
+		File:   "Solution.java",
+		Folder: "testData/printer/",
+	}
+	err := errors.New("timeout")
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		iot.handleErr(err, stdout, stderr)
 	}
 }

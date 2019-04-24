@@ -1,6 +1,7 @@
 package test
 
 import (
+	"errors"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -47,6 +48,22 @@ func TestRunTestJavaStyleTestHandler(t *testing.T) {
 		} else {
 			t.Logf("Successfully style checked the solution for %s language", filepath.Ext(jsts[i].File))
 		}
+	}
+}
+
+func BenchmarkRunTestJavaStyleTestHandler(b *testing.B) {
+	jst := JavaStyleTestHandler{
+		Test: Test{
+			Type: "javaStyle",
+		},
+		File:   "Solution.java",
+		Folder: "testData/printer/",
+	}
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		jst.RunTest()
 	}
 }
 
@@ -101,5 +118,70 @@ func TestNewResultJavaStyleTestHandler(t *testing.T) {
 		} else {
 			t.Logf("Successfully obtained the expected result")
 		}
+	}
+}
+
+func BenchmarkNewResultJavaStyleTestHandler(b *testing.B) {
+	test := Test{
+		Type: "javaStyle",
+	}
+	stdout := "[Audit Started]\n[Audit Done]"
+	stderr := ""
+	jst := JavaStyleTestHandler{
+		Test:   test,
+		File:   "Solution.java",
+		Folder: "testData/printer/",
+	}
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		jst.NewResult(stdout, stderr)
+	}
+}
+
+func TestHandleErrJavaStyleTestHandler(t *testing.T) {
+	test := Test{
+		Type: "javaStyle",
+	}
+	stdout := "[Audit Started]\n[Audit Done]"
+	stderr := ""
+	iot := JavaStyleTestHandler{
+		Test:   test,
+		File:   "Solution.java",
+		Folder: "testData/printer/",
+	}
+	err := errors.New("timeout")
+	err2 := errors.New("something else")
+
+	result1, _ := iot.handleErr(err, stdout, stderr)
+	result2, _ := iot.handleErr(err2, stdout, stderr)
+
+	correct1 := result1.StdOut == stdout && result1.StdErr == stderr && result1.TimedOut && !result1.Successful
+	if !correct1 {
+		t.Fatalf("Expected\n- StdOut: %s\n- StdErr: %s\n- Timeout: %v\n-------\nGot\n- StdOut: %s\n- StdErr: %s\n- Timeout: %v\n", stdout, stderr, true, result1.StdOut, result1.StdErr, result1.TimedOut)
+	}
+	correct2 := result2.StdOut == stdout && result2.StdErr == stderr && !result2.TimedOut && !result2.Successful
+	if !correct2 {
+		t.Fatalf("Expected\n- StdOut: %s\n- StdErr: %s\n- Timeout: %v\n-------\nGot\n- StdOut: %s\n- StdErr: %s\n- Timeout: %v\n", stdout, stderr, false, result2.StdOut, result2.StdErr, result2.TimedOut)
+	}
+}
+
+func BenchmarkHandleErrJavaStyleTestHandler(b *testing.B) {
+	test := Test{
+		Type: "javaStyle",
+	}
+	stdout := "[Audit Started]\n[Audit Done]"
+	stderr := ""
+	iot := JavaStyleTestHandler{
+		Test:   test,
+		File:   "Solution.java",
+		Folder: "testData/printer/",
+	}
+	err := errors.New("timeout")
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		iot.handleErr(err, stdout, stderr)
 	}
 }

@@ -1,6 +1,7 @@
 package test
 
 import (
+	"errors"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -66,6 +67,24 @@ func TestRunTestJUnitTestHandler(t *testing.T) {
 	}
 }
 
+func BenchmarkRunTestJUnitTestHandler(b *testing.B) {
+	jut := JUnitTestHandler{
+		Test: Test{
+			Type:     "junit",
+			UnitTest: "@Test\n  public void adderWorksWithNegative() {\n    Solution s = new Solution();\n    int actual = s.adder(0, -1);\n    assertEquals(-1, actual);\n  }",
+		},
+		File:      "Solution.java",
+		Folder:    "testData/adder/",
+		ClassName: "Solution",
+	}
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		jut.RunTest()
+	}
+}
+
 func TestNewResultJUnitTestHandler(t *testing.T) {
 	test := Test{
 		Type:     "junit",
@@ -118,5 +137,75 @@ func TestNewResultJUnitTestHandler(t *testing.T) {
 		} else {
 			t.Logf("Successfully obtained the expected result")
 		}
+	}
+}
+
+func BenchmarkNewResultJUnitTestHandler(b *testing.B) {
+	test := Test{
+		Type:     "junit",
+		UnitTest: "@Test\n  public void adderWorksWithNegative() {\n    Solution s = new Solution();\n    int actual = s.adder(0, -1);\n    assertEquals(-1, actual);\n  }",
+	}
+	stdout := "JUnit version 4.10\r\n.\r\nTime: 0.009\r\n\r\nOK (1 test)"
+	stderr := ""
+	jut := JUnitTestHandler{
+		Test:      test,
+		File:      "Solution.java",
+		Folder:    "testData/adder/",
+		ClassName: "Solution",
+	}
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		jut.NewResult(stdout, stderr)
+	}
+}
+
+func TestHandleErrJUnitTestHandler(t *testing.T) {
+	test := Test{
+		Type:     "junit",
+		UnitTest: "@Test\n  public void adderWorksWithNegative() {\n    Solution s = new Solution();\n    int actual = s.adder(0, -1);\n    assertEquals(-1, actual);\n  }",
+	}
+	stdout := "JUnit version 4.10\r\n.\r\nTime: 0.009\r\n\r\nOK (1 test)"
+	stderr := ""
+	jut := JUnitTestHandler{
+		Test:      test,
+		File:      "Solution.java",
+		Folder:    "testData/printer/",
+		ClassName: "Solution",
+	}
+	err := errors.New("timeout")
+	err2 := errors.New("something else")
+
+	result1, _ := jut.handleErr(err, stdout)
+	result2, _ := jut.handleErr(err2, stdout)
+
+	correct1 := result1.StdOut == stdout && result1.StdErr == stderr && result1.TimedOut && !result1.Successful
+	if !correct1 {
+		t.Fatalf("Expected\n- StdOut: %s\n- StdErr: %s\n- Timeout: %v\n-------\nGot\n- StdOut: %s\n- StdErr: %s\n- Timeout: %v\n", stdout, stderr, true, result1.StdOut, result1.StdErr, result1.TimedOut)
+	}
+	correct2 := result2.StdOut == stdout && result2.StdErr == stderr && !result2.TimedOut && !result2.Successful
+	if !correct2 {
+		t.Fatalf("Expected\n- StdOut: %s\n- StdErr: %s\n- Timeout: %v\n-------\nGot\n- StdOut: %s\n- StdErr: %s\n- Timeout: %v\n", stdout, stderr, false, result2.StdOut, result2.StdErr, result2.TimedOut)
+	}
+}
+
+func BenchmarkHandleErrJUnitTestHandler(b *testing.B) {
+	test := Test{
+		Type:     "junit",
+		UnitTest: "@Test\n  public void adderWorksWithNegative() {\n    Solution s = new Solution();\n    int actual = s.adder(0, -1);\n    assertEquals(-1, actual);\n  }",
+	}
+	stdout := "JUnit version 4.10\r\n.\r\nTime: 0.009\r\n\r\nOK (1 test)"
+	iot := JUnitTestHandler{
+		Test:      test,
+		File:      "Solution.java",
+		Folder:    "testData/printer/",
+		ClassName: "Solution",
+	}
+	err := errors.New("timeout")
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		iot.handleErr(err, stdout)
 	}
 }

@@ -1,6 +1,7 @@
 package test
 
 import (
+	"errors"
 	"fmt"
 	"path/filepath"
 	"strings"
@@ -67,6 +68,26 @@ func TestRunTestOutputTestHandler(t *testing.T) {
 	}
 }
 
+func BenchmarkRunTestOutputTestHandler(b *testing.B) {
+	opt := OutputTestHandler{
+		Test: Test{
+			Type: "output",
+			ExpectedOutput: []string{
+				"11",
+				"3",
+			},
+		},
+		File:   "Solution.java",
+		Folder: "testData/helloWorld/",
+	}
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		opt.RunTest()
+	}
+}
+
 func TestNewResultOutputTestHandler(t *testing.T) {
 	test := Test{
 		Type: "output",
@@ -123,5 +144,81 @@ func TestNewResultOutputTestHandler(t *testing.T) {
 		} else {
 			t.Logf("Successfully obtained the expected result")
 		}
+	}
+}
+
+func BenchmarkNewResultOutputTestHandler(b *testing.B) {
+	test := Test{
+		Type: "output",
+		ExpectedOutput: []string{
+			"11",
+			"3",
+		},
+	}
+	stdout := strings.Join(test.ExpectedOutput, "\n")
+	stderr := ""
+	opt := OutputTestHandler{
+		Test:   test,
+		File:   "Solution.java",
+		Folder: "testData/helloWorld/",
+	}
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		opt.NewResult(stdout, stderr)
+	}
+}
+
+func TestHandleErrOutputTestHandler(t *testing.T) {
+	test := Test{
+		Type: "output",
+		ExpectedOutput: []string{
+			"Hello world",
+		},
+	}
+	stdout := strings.Join(test.ExpectedOutput, "\n")
+	stderr := ""
+	opt := OutputTestHandler{
+		Test:   test,
+		File:   "Solution.java",
+		Folder: "testData/helloWorld/",
+	}
+	err := errors.New("timeout")
+	err2 := errors.New("something else")
+
+	result1, _ := opt.handleErr(err, stdout, stderr)
+	result2, _ := opt.handleErr(err2, stdout, stderr)
+
+	correct1 := result1.StdOut == stdout && result1.StdErr == stderr && result1.TimedOut && !result1.Successful
+	if !correct1 {
+		t.Fatalf("Expected\n- StdOut: %s\n- StdErr: %s\n- Timeout: %v\n-------\nGot\n- StdOut: %s\n- StdErr: %s\n- Timeout: %v\n", stdout, stderr, true, result1.StdOut, result1.StdErr, result1.TimedOut)
+	}
+	correct2 := result2.StdOut == stdout && result2.StdErr == stderr && !result2.TimedOut && !result2.Successful
+	if !correct2 {
+		t.Fatalf("Expected\n- StdOut: %s\n- StdErr: %s\n- Timeout: %v\n-------\nGot\n- StdOut: %s\n- StdErr: %s\n- Timeout: %v\n", stdout, stderr, false, result2.StdOut, result2.StdErr, result2.TimedOut)
+	}
+}
+
+func BenchmarkHandleErrOutputTestHandler(b *testing.B) {
+	test := Test{
+		Type: "output",
+		ExpectedOutput: []string{
+			"11",
+			"3",
+		},
+	}
+	stdout := strings.Join(test.ExpectedOutput, "\n")
+	stderr := ""
+	opt := OutputTestHandler{
+		Test:   test,
+		File:   "Solution.java",
+		Folder: "testData/helloWorld/",
+	}
+	err := errors.New("timeout")
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		opt.handleErr(err, stdout, stderr)
 	}
 }
