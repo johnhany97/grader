@@ -29,12 +29,12 @@ func NewGrader(s Schema, mt int) Grader {
 	}
 }
 
-func (g Grader) Grade() []test.TestResult {
+func (g Grader) Grade() []test.Result {
 	// make a channel with a capacity of 100.
-	jobChan := make(chan test.TestTask, g.MaxTasks)
+	jobChan := make(chan test.Task, g.MaxTasks)
 
 	// results
-	testresults := []test.TestResult{}
+	testresults := []test.Result{}
 	// start the worker
 	wg.Add(1)
 	go worker(jobChan, &testresults)
@@ -43,7 +43,7 @@ func (g Grader) Grade() []test.TestResult {
 		// get test
 		t := g.Schema.Tests[i]
 		// create test task
-		var task test.TestTask
+		var task test.Task
 		switch t.Type {
 		case "output":
 			task = test.OutputTestHandler{
@@ -89,13 +89,13 @@ func (g Grader) Grade() []test.TestResult {
 	return testresults
 }
 
-func worker(jobChan <-chan test.TestTask, testresults *[]test.TestResult) {
+func worker(jobChan <-chan test.Task, testresults *[]test.Result) {
 	defer wg.Done()
 	for job := range jobChan {
 		// fmt.Print("Enqueuing job: ")
 		// fmt.Println(job)
 		wg.Add(1)
-		go func(job test.TestTask, testresults *[]test.TestResult) {
+		go func(job test.Task, testresults *[]test.Result) {
 			defer wg.Done()
 			testResult, _ := job.RunTest()
 			// if err != nil {

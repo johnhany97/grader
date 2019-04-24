@@ -15,7 +15,7 @@ type JavaStyleTestHandler struct {
 }
 
 // RunTest is a method used to run a test task
-func (jst JavaStyleTestHandler) RunTest() (TestResult, error) {
+func (jst JavaStyleTestHandler) RunTest() (Result, error) {
 	processor := processors.SubmissionsProcessor{}
 	stdout, stderr, err := processor.ExecuteJavaStyle(jst.File, jst.Folder)
 	if err != nil {
@@ -26,8 +26,8 @@ func (jst JavaStyleTestHandler) RunTest() (TestResult, error) {
 
 // NewResult returns back the result of processing the output of
 // executing the test task
-func (jst JavaStyleTestHandler) NewResult(stdout string, stderr string) TestResult {
-	tr := TestResult{
+func (jst JavaStyleTestHandler) NewResult(stdout string, stderr string) Result {
+	tr := Result{
 		Test: jst.Test,
 	}
 
@@ -42,16 +42,16 @@ func (jst JavaStyleTestHandler) NewResult(stdout string, stderr string) TestResu
 // handleErr handles potnetial errors produced from the execution and
 // customizes the test task output to reflect is the error was due to
 // a certain specific cause (for example, a timeout error)
-func (jst JavaStyleTestHandler) handleErr(e error, stdout string, stderr string) (TestResult, error) {
+func (jst JavaStyleTestHandler) handleErr(e error, stdout string, stderr string) (Result, error) {
 	if strings.Compare(e.Error(), "timeout") == 0 {
-		return TestResult{
+		return Result{
 			Test:     jst.Test,
 			TimedOut: true,
 			StdOut:   strings.TrimSpace(stdout),
 			StdErr:   strings.TrimSpace(stderr),
 		}, nil
 	}
-	return TestResult{
+	return Result{
 		Test:   jst.Test,
 		StdOut: strings.TrimSpace(stdout),
 		StdErr: strings.TrimSpace(stderr),

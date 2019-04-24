@@ -27,7 +27,7 @@ func TestRunTestJUnitTestHandler(t *testing.T) {
 	}
 
 	var juts []JUnitTestHandler
-	var expectedResults []TestResult
+	var expectedResults []Result
 
 	for _, test := range tests {
 		for _, ext := range availableFormats {
@@ -37,7 +37,7 @@ func TestRunTestJUnitTestHandler(t *testing.T) {
 				Folder:    folder,
 				ClassName: className,
 			})
-			expectedResults = append(expectedResults, TestResult{
+			expectedResults = append(expectedResults, Result{
 				Test:        test,
 				StdErr:      "",
 				StdOut:      "JUnit version 4.10\r\n.\r\nTime: 0.009\r\n\r\nOK (1 test)",
@@ -49,7 +49,7 @@ func TestRunTestJUnitTestHandler(t *testing.T) {
 		}
 	}
 
-	var actualResults []TestResult
+	var actualResults []Result
 
 	for _, jut := range juts {
 		result, _ := jut.RunTest()
@@ -75,7 +75,7 @@ func TestNewResultJUnitTestHandler(t *testing.T) {
 		Jut    JUnitTestHandler
 		Stdout string
 		Stderr string
-		TR     TestResult
+		TR     Result
 	}{
 		{
 			Jut: JUnitTestHandler{
@@ -83,7 +83,7 @@ func TestNewResultJUnitTestHandler(t *testing.T) {
 			},
 			Stdout: "JUnit version 4.10\r\n.\r\nTime: 0.009\r\n\r\nOK (1 test)",
 			Stderr: "",
-			TR: TestResult{
+			TR: Result{
 				Test:        test,
 				StdOut:      "JUnit version 4.10\r\n.\r\nTime: 0.009\r\n\r\nOK (1 test)",
 				StdErr:      "",
@@ -99,7 +99,7 @@ func TestNewResultJUnitTestHandler(t *testing.T) {
 			},
 			Stdout: "JUnit version 4.10\r\n.\r\nTime: 0.009\r\n\r\nOK (1 test)",
 			Stderr: "",
-			TR: TestResult{
+			TR: Result{
 				Test:        test,
 				StdOut:      "JUnit version 4.10\r\n.\r\nTime: 0.009\r\n\r\nOK (1 test)",
 				StdErr:      "",

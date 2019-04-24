@@ -18,7 +18,7 @@ type OutputTestHandler struct {
 }
 
 // RunTest is a method used to run a test task
-func (opt OutputTestHandler) RunTest() (TestResult, error) {
+func (opt OutputTestHandler) RunTest() (Result, error) {
 	processor := processors.SubmissionsProcessor{}
 	stdout, stderr, err := processor.Execute(opt.File, opt.Folder)
 	if err != nil {
@@ -29,8 +29,8 @@ func (opt OutputTestHandler) RunTest() (TestResult, error) {
 
 // NewResult returns back the result of processing the output of
 // executing the test task
-func (opt OutputTestHandler) NewResult(stdout string, stderr string) TestResult {
-	tr := TestResult{
+func (opt OutputTestHandler) NewResult(stdout string, stderr string) Result {
+	tr := Result{
 		Test: opt.Test,
 	}
 
@@ -52,16 +52,16 @@ func (opt OutputTestHandler) NewResult(stdout string, stderr string) TestResult 
 // handleErr handles potnetial errors produced from the execution and
 // customizes the test task output to reflect is the error was due to
 // a certain specific cause (for example, a timeout error)
-func (opt OutputTestHandler) handleErr(e error, stdout string, stderr string) (TestResult, error) {
+func (opt OutputTestHandler) handleErr(e error, stdout string, stderr string) (Result, error) {
 	if strings.Compare(e.Error(), "timeout") == 0 {
-		return TestResult{
+		return Result{
 			Test:     opt.Test,
 			TimedOut: true,
 			StdOut:   strings.TrimSpace(stdout),
 			StdErr:   strings.TrimSpace(stderr),
 		}, nil
 	}
-	return TestResult{
+	return Result{
 		Test:   opt.Test,
 		StdOut: strings.TrimSpace(stdout),
 		StdErr: strings.TrimSpace(stderr),

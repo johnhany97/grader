@@ -18,7 +18,7 @@ type JUnitTestHandler struct {
 }
 
 // RunTest is a method used to run a test task
-func (jut JUnitTestHandler) RunTest() (TestResult, error) {
+func (jut JUnitTestHandler) RunTest() (Result, error) {
 	processor := processors.SubmissionsProcessor{}
 	// Obtain all unit tests
 	// Put it all together
@@ -32,8 +32,8 @@ func (jut JUnitTestHandler) RunTest() (TestResult, error) {
 
 // NewResult returns back the result of processing the output of
 // executing the test task
-func (jut JUnitTestHandler) NewResult(stdout string, stderr string) TestResult {
-	tr := TestResult{
+func (jut JUnitTestHandler) NewResult(stdout string, stderr string) Result {
+	tr := Result{
 		Test: jut.Test,
 	}
 
@@ -49,15 +49,15 @@ func (jut JUnitTestHandler) NewResult(stdout string, stderr string) TestResult {
 // handleErr handles potnetial errors produced from the execution and
 // customizes the test task output to reflect is the error was due to
 // a certain specific cause (for example, a timeout error)
-func (jut JUnitTestHandler) handleErr(e error, stdout string) (TestResult, error) {
+func (jut JUnitTestHandler) handleErr(e error, stdout string) (Result, error) {
 	if strings.Compare(e.Error(), "timeout") == 0 {
-		return TestResult{
+		return Result{
 			Test:     jut.Test,
 			TimedOut: true,
 			StdOut:   strings.TrimSpace(stdout),
 		}, nil
 	}
-	return TestResult{
+	return Result{
 		Test:   jut.Test,
 		StdOut: strings.TrimSpace(stdout),
 	}, e

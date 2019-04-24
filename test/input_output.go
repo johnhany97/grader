@@ -18,7 +18,7 @@ type InputOutputTestHandler struct {
 }
 
 // RunTest is a method used to run a test task
-func (iot InputOutputTestHandler) RunTest() (TestResult, error) {
+func (iot InputOutputTestHandler) RunTest() (Result, error) {
 	processor := processors.SubmissionsProcessor{}
 	stdout, stderr, err := processor.ExecuteWithInput(iot.File, iot.Folder, strings.Join(iot.Test.Input, "\n"))
 	if err != nil {
@@ -29,8 +29,8 @@ func (iot InputOutputTestHandler) RunTest() (TestResult, error) {
 
 // NewResult returns back the result of processing the output of
 // executing the test task
-func (iot InputOutputTestHandler) NewResult(stdout string, stderr string) TestResult {
-	tr := TestResult{
+func (iot InputOutputTestHandler) NewResult(stdout string, stderr string) Result {
+	tr := Result{
 		Test: iot.Test,
 	}
 
@@ -53,16 +53,16 @@ func (iot InputOutputTestHandler) NewResult(stdout string, stderr string) TestRe
 // handleErr handles potnetial errors produced from the execution and
 // customizes the test task output to reflect is the error was due to
 // a certain specific cause (for example, a timeout error)
-func (iot InputOutputTestHandler) handleErr(e error, stdout string, stderr string) (TestResult, error) {
+func (iot InputOutputTestHandler) handleErr(e error, stdout string, stderr string) (Result, error) {
 	if strings.Compare(e.Error(), "timeout") == 0 {
-		return TestResult{
+		return Result{
 			Test:     iot.Test,
 			TimedOut: true,
 			StdOut:   strings.TrimSpace(stdout),
 			StdErr:   strings.TrimSpace(stderr),
 		}, nil
 	}
-	return TestResult{
+	return Result{
 		Test:   iot.Test,
 		StdOut: strings.TrimSpace(stdout),
 		StdErr: strings.TrimSpace(stderr),

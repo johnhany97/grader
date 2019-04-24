@@ -61,7 +61,7 @@ func TestRunTestInputOutputTestHandler(t *testing.T) {
 	}
 
 	var iots []InputOutputTestHandler
-	var expectedResults []TestResult
+	var expectedResults []Result
 
 	for _, test := range tests {
 		for _, ext := range availableFormats {
@@ -70,7 +70,7 @@ func TestRunTestInputOutputTestHandler(t *testing.T) {
 				File:   className + "." + ext,
 				Folder: folder,
 			})
-			expectedResults = append(expectedResults, TestResult{
+			expectedResults = append(expectedResults, Result{
 				Test:        test,
 				StdOut:      strings.Join(test.ExpectedOutput, "\n"),
 				StdErr:      "",
@@ -82,7 +82,7 @@ func TestRunTestInputOutputTestHandler(t *testing.T) {
 		}
 	}
 
-	var actualResults []TestResult
+	var actualResults []Result
 
 	for _, iot := range iots {
 		result, _ := iot.RunTest()
@@ -117,7 +117,7 @@ func TestNewResultInputOutputTestHandler(t *testing.T) {
 			Iot    InputOutputTestHandler
 			Stdout string
 			Stderr string
-			TR     TestResult
+			TR     Result
 		}{
 			{
 				Iot: InputOutputTestHandler{
@@ -125,7 +125,7 @@ func TestNewResultInputOutputTestHandler(t *testing.T) {
 				},
 				Stdout: "11\n3",
 				Stderr: "",
-				TR: TestResult{
+				TR: Result{
 					Test:        test,
 					StdOut:      "11\n3",
 					StdErr:      "",
@@ -141,7 +141,7 @@ func TestNewResultInputOutputTestHandler(t *testing.T) {
 				},
 				Stdout: "10\n2",
 				Stderr: "",
-				TR: TestResult{
+				TR: Result{
 					Test:        test,
 					StdOut:      "10\n2",
 					StdErr:      "",

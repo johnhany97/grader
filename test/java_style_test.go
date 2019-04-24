@@ -33,7 +33,7 @@ func TestRunTestJavaStyleTestHandler(t *testing.T) {
 		}
 	}
 
-	var actualResults []TestResult
+	var actualResults []Result
 
 	for _, jst := range jsts {
 		result, _ := jst.RunTest()
@@ -58,7 +58,7 @@ func TestNewResultJavaStyleTestHandler(t *testing.T) {
 		jst    JavaStyleTestHandler
 		Stdout string
 		Stderr string
-		TR     TestResult
+		TR     Result
 	}{
 		{
 			jst: JavaStyleTestHandler{
@@ -66,7 +66,7 @@ func TestNewResultJavaStyleTestHandler(t *testing.T) {
 			},
 			Stdout: "The result of the audit",
 			Stderr: "",
-			TR: TestResult{
+			TR: Result{
 				Test:        test,
 				StdOut:      "The result of the audit",
 				StdErr:      "",
@@ -82,7 +82,7 @@ func TestNewResultJavaStyleTestHandler(t *testing.T) {
 			},
 			Stdout: "",
 			Stderr: "Failed to start",
-			TR: TestResult{
+			TR: Result{
 				Test:        test,
 				StdOut:      "",
 				StdErr:      "Failed to start",

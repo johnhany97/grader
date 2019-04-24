@@ -29,7 +29,7 @@ func TestRunTestOutputTestHandler(t *testing.T) {
 	}
 
 	var opts []OutputTestHandler
-	var expectedResults []TestResult
+	var expectedResults []Result
 
 	for _, test := range tests {
 		for _, ext := range availableFormats {
@@ -38,7 +38,7 @@ func TestRunTestOutputTestHandler(t *testing.T) {
 				File:   className + "." + ext,
 				Folder: folder,
 			})
-			expectedResults = append(expectedResults, TestResult{
+			expectedResults = append(expectedResults, Result{
 				Test:        test,
 				StdOut:      strings.Join(test.ExpectedOutput, "\n"),
 				StdErr:      "",
@@ -50,7 +50,7 @@ func TestRunTestOutputTestHandler(t *testing.T) {
 		}
 	}
 
-	var actualResults []TestResult
+	var actualResults []Result
 
 	for _, opt := range opts {
 		result, _ := opt.RunTest()
@@ -80,7 +80,7 @@ func TestNewResultOutputTestHandler(t *testing.T) {
 			opt    OutputTestHandler
 			Stdout string
 			Stderr string
-			TR     TestResult
+			TR     Result
 		}{
 			{
 				opt: OutputTestHandler{
@@ -88,7 +88,7 @@ func TestNewResultOutputTestHandler(t *testing.T) {
 				},
 				Stdout: "11\n3",
 				Stderr: "",
-				TR: TestResult{
+				TR: Result{
 					Test:        test,
 					StdOut:      "11\n3",
 					StdErr:      "",
@@ -104,7 +104,7 @@ func TestNewResultOutputTestHandler(t *testing.T) {
 				},
 				Stdout: "10\n2",
 				Stderr: "",
-				TR: TestResult{
+				TR: Result{
 					Test:        test,
 					StdOut:      "10\n2",
 					StdErr:      "",

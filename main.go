@@ -7,10 +7,11 @@ import (
 	"io/ioutil"
 	"log"
 
-	"github.com/johnhany97/grader/test"
-
 	"github.com/johnhany97/grader/grader"
+	"github.com/johnhany97/grader/test"
 )
+
+const maxTasks = 10
 
 func main() {
 	// Parse arguments to application
@@ -36,8 +37,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	const maxTasks = 10
-
 	grader := grader.NewGrader(schema, maxTasks)
 
 	// Run Grader
@@ -47,7 +46,9 @@ func main() {
 	processResults(testResults, schema.Outfile, schema.Folder)
 }
 
-func processResults(tr []test.TestResult, outfile string, folder string) {
+// processResults is used to marshal the test results unto a JSON
+// and print it out to the terminal or store it in the outfile if specified
+func processResults(tr []test.Result, outfile string, folder string) {
 	bs, _ := json.Marshal(tr)
 	if outfile == "" {
 		fmt.Println(string(bs))

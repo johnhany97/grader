@@ -38,7 +38,7 @@ func TestRunTestPyUnitTestHandler(t *testing.T) {
 		}
 	}
 
-	var actualResults []TestResult
+	var actualResults []Result
 
 	for _, put := range puts {
 		result, _ := put.RunTest()
@@ -64,7 +64,7 @@ func TestNewResultPyUnitTestHandler(t *testing.T) {
 		Put    PyUnitTestHandler
 		Stdout string
 		Stderr string
-		TR     TestResult
+		TR     Result
 	}{
 		{
 			Put: PyUnitTestHandler{
@@ -72,7 +72,7 @@ func TestNewResultPyUnitTestHandler(t *testing.T) {
 			},
 			Stdout: "Ran Tests.... OK",
 			Stderr: "",
-			TR: TestResult{
+			TR: Result{
 				Test:        test,
 				StdOut:      "Ran Tests.... OK",
 				StdErr:      "",
@@ -88,7 +88,7 @@ func TestNewResultPyUnitTestHandler(t *testing.T) {
 			},
 			Stdout: "",
 			Stderr: "AssertionError: False is not true",
-			TR: TestResult{
+			TR: Result{
 				Test:        test,
 				StdOut:      "",
 				StdErr:      "AssertionError: False is not true",
