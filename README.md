@@ -6,6 +6,12 @@ Usage of main.go:
         Marking scheme to follow when grading the assignment (required)
 ```
 
+## Testing
+To run the test suite, simply execute the following command:
+```
+go test -v ./...
+```
+
 ## Installation
 First off, you'll need to [Install Go](https://golang.org/doc/install) and make sure enviornment variables are set up properly. Following that, you'll need to [Install Docker](https://docs.docker.com/v17.09/engine/installation/). To be able to run Java Style checking test tasks, you'll need to install [Checkstyle](http://checkstyle.sourceforge.net/index.html) as well.
 
