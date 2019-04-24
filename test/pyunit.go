@@ -44,12 +44,12 @@ func (put PyUnitTestHandler) handleErr(e error, stdout string) (TestResult, erro
 		return TestResult{
 			Test:     put.Test,
 			TimedOut: true,
-			StdOut:   stdout,
+			StdOut:   strings.TrimSpace(stdout),
 		}, nil
 	}
 	return TestResult{
 		Test:   put.Test,
-		StdOut: stdout,
+		StdOut: strings.TrimSpace(stdout),
 	}, e
 }
 

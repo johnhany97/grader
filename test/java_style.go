@@ -18,7 +18,7 @@ func (jst JavaStyleTestHandler) RunTest() (TestResult, error) {
 	processor := processors.SubmissionsProcessor{}
 	stdout, stderr, err := processor.ExecuteJavaStyle(jst.File, jst.Folder)
 	if err != nil {
-		return jst.handleErr(err)
+		return jst.handleErr(err, stdout, stderr)
 	}
 	return jst.NewResult(stdout, stderr), nil
 }
@@ -36,14 +36,18 @@ func (jst JavaStyleTestHandler) NewResult(stdout string, stderr string) TestResu
 	return tr
 }
 
-func (jst JavaStyleTestHandler) handleErr(e error) (TestResult, error) {
+func (jst JavaStyleTestHandler) handleErr(e error, stdout string, stderr string) (TestResult, error) {
 	if strings.Compare(e.Error(), "timeout") == 0 {
 		return TestResult{
 			Test:     jst.Test,
 			TimedOut: true,
+			StdOut:   strings.TrimSpace(stdout),
+			StdErr:   strings.TrimSpace(stderr),
 		}, nil
 	}
 	return TestResult{
-		Test: jst.Test,
+		Test:   jst.Test,
+		StdOut: strings.TrimSpace(stdout),
+		StdErr: strings.TrimSpace(stderr),
 	}, e
 }
