@@ -9,7 +9,7 @@ Usage of main.go:
 ## Testing & Benchmarking
 To run the test suite, simply execute the following command:
 ```
-go test -v ./...
+go test -v -cover ./...
 ```
 To run the benchmarks, simply execute the following command:
 ```
@@ -236,4 +236,120 @@ Output: (Order may vary as tasks are finished by the job worker)
       "timedOut":false
    }
 ]
+```
+
+## Test and Benchmark runs
+Last Test run:
+```
+=== RUN   TestExecute
+--- PASS: TestExecute (8.65s)
+=== RUN   TestExecuteWithInput
+--- PASS: TestExecuteWithInput (8.89s)
+=== RUN   TestExecuteJUnitTests
+--- PASS: TestExecuteJUnitTests (4.23s)
+=== RUN   TestExecutePyUnitTests
+--- PASS: TestExecutePyUnitTests (2.38s)
+=== RUN   TestExecuteJavaStyle
+--- PASS: TestExecuteJavaStyle (0.66s)
+PASS
+coverage: 77.9% of statements
+ok      github.com/johnhany97/grader/processors 24.823s coverage: 77.9% of statements
+=== RUN   TestRunTestInputOutputTestHandler
+--- PASS: TestRunTestInputOutputTestHandler (28.10s)
+    input_output_test.go:98: Successfully graded the solution for .java language
+    input_output_test.go:98: Successfully graded the solution for .py language
+    input_output_test.go:98: Successfully graded the solution for .cpp language
+    input_output_test.go:98: Successfully graded the solution for .cs language
+    input_output_test.go:98: Successfully graded the solution for .java language
+    input_output_test.go:98: Successfully graded the solution for .py language
+    input_output_test.go:98: Successfully graded the solution for .cpp language
+    input_output_test.go:98: Successfully graded the solution for .cs language
+    input_output_test.go:98: Successfully graded the solution for .java language
+    input_output_test.go:98: Successfully graded the solution for .py language
+    input_output_test.go:98: Successfully graded the solution for .cpp language
+    input_output_test.go:98: Successfully graded the solution for .cs language
+=== RUN   TestNewResultInputOutputTestHandler
+--- PASS: TestNewResultInputOutputTestHandler (0.00s)
+    input_output_test.go:187: Successfully obtained the expected result
+    input_output_test.go:187: Successfully obtained the expected result
+=== RUN   TestHandleErrInputOutputTestHandler
+--- PASS: TestHandleErrInputOutputTestHandler (0.00s)
+=== RUN   TestRunTestJavaStyleTestHandler
+--- PASS: TestRunTestJavaStyleTestHandler (0.62s)
+    java_style_test.go:49: Successfully style checked the solution for .java language
+=== RUN   TestNewResultJavaStyleTestHandler
+--- PASS: TestNewResultJavaStyleTestHandler (0.00s)
+    java_style_test.go:119: Successfully obtained the expected result
+    java_style_test.go:119: Successfully obtained the expected result
+=== RUN   TestHandleErrJavaStyleTestHandler
+--- PASS: TestHandleErrJavaStyleTestHandler (0.00s)
+=== RUN   TestRunTestJUnitTestHandler
+--- PASS: TestRunTestJUnitTestHandler (8.23s)
+    junit_test.go:65: Successfully graded the solution for .java language
+    junit_test.go:65: Successfully graded the solution for .java language
+=== RUN   TestNewResultJUnitTestHandler
+--- PASS: TestNewResultJUnitTestHandler (0.00s)
+    junit_test.go:138: Successfully obtained the expected result
+    junit_test.go:138: Successfully obtained the expected result
+=== RUN   TestHandleErrJUnitTestHandler
+--- PASS: TestHandleErrJUnitTestHandler (0.00s)
+=== RUN   TestRunTestOutputTestHandler
+--- PASS: TestRunTestOutputTestHandler (8.67s)
+    output_test.go:66: Successfully graded the solution for .java language
+    output_test.go:66: Successfully graded the solution for .py language
+    output_test.go:66: Successfully graded the solution for .cpp language
+    output_test.go:66: Successfully graded the solution for .cs language
+=== RUN   TestNewResultOutputTestHandler
+--- PASS: TestNewResultOutputTestHandler (0.00s)
+    output_test.go:145: Successfully obtained the expected result
+    output_test.go:145: Successfully obtained the expected result
+=== RUN   TestHandleErrOutputTestHandler
+--- PASS: TestHandleErrOutputTestHandler (0.00s)
+=== RUN   TestRunTestPyUnitTestHandler
+--- PASS: TestRunTestPyUnitTestHandler (3.36s)
+    pyunit_test.go:54: Successfully graded the solution for .py language
+    pyunit_test.go:54: Successfully graded the solution for .py language
+=== RUN   TestNewResultPyUnitTestHandler
+--- PASS: TestNewResultPyUnitTestHandler (0.00s)
+    pyunit_test.go:109: Successfully obtained the expected result
+    pyunit_test.go:109: Successfully obtained the expected result
+=== RUN   TestHandleErrPyUnitTestHandler
+--- PASS: TestHandleErrPyUnitTestHandler (0.00s)
+PASS
+coverage: 93.3% of statements
+ok      github.com/johnhany97/grader/test       48.986s coverage: 93.3% of statements
+```
+
+
+Last Benchmark Run:
+```
+goos: darwin
+goarch: amd64
+pkg: github.com/johnhany97/grader/processors
+BenchmarkExecute-12                            2        2687419688 ns/op           18880 B/op        177 allocs/op
+BenchmarkExecuteWithInput-12                   2        2746329358 ns/op           19224 B/op        183 allocs/op
+BenchmarkExecuteJUnitTests-12                  2        4290938234 ns/op           12016 B/op        100 allocs/op
+BenchmarkExecutePyUnitTests-12                 5        1649888741 ns/op           18478 B/op        182 allocs/op
+BenchmarkExecuteJavaStyle-12                  10         622639507 ns/op           13876 B/op        115 allocs/op
+PASS
+ok      github.com/johnhany97/grader/processors 53.897s
+goos: darwin
+goarch: amd64
+pkg: github.com/johnhany97/grader/test
+BenchmarkRunTestInputOutputTestHandler-12              2        2855917014 ns/op           20500 B/op        197 allocs/op
+BenchmarkNewResultInputOutputTestHandler-12     20000000               430 ns/op              96 B/op          7 allocs/op
+BenchmarkHandleErrInputOutputTestHandler-12     200000000               45.9 ns/op             0 B/op          0 allocs/op
+BenchmarkRunTestJavaStyleTestHandler-12               10         664239069 ns/op           14096 B/op        117 allocs/op
+BenchmarkNewResultJavaStyleTestHandler-12       200000000               44.0 ns/op             0 B/op          0 allocs/op
+BenchmarkHandleErrJavaStyleTestHandler-12       200000000               46.9 ns/op             0 B/op          0 allocs/op
+BenchmarkRunTestJUnitTestHandler-12                    2        4260429266 ns/op           13772 B/op        105 allocs/op
+BenchmarkNewResultJUnitTestHandler-12           100000000               57.2 ns/op             0 B/op          0 allocs/op
+BenchmarkHandleErrJUnitTestHandler-12           200000000               37.6 ns/op             0 B/op          0 allocs/op
+BenchmarkRunTestOutputTestHandler-12                   2        2676039517 ns/op           20284 B/op        188 allocs/op
+BenchmarkNewResultOutputTestHandler-12          20000000               399 ns/op              92 B/op          6 allocs/op
+BenchmarkHandleErrOutputTestHandler-12          200000000               45.6 ns/op             0 B/op          0 allocs/op
+BenchmarkNewResultPyUnitTestHandler-12          100000000               56.4 ns/op             0 B/op          0 allocs/op
+BenchmarkHandleErrPyUnitTestHandler-12          200000000               36.7 ns/op             0 B/op          0 allocs/op
+PASS
+ok      github.com/johnhany97/grader/test       141.407s
 ```
